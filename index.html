@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PCK道場 — パソコン甲子園 プログラミング学習</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== SPLASH SCREEN ===== -->
+<div id="splash">
+  <div class="splash-bg"></div>
+  <div class="splash-content">
+    <div class="splash-logo">
+      <span class="logo-kanji">道</span>
+      <span class="logo-sub">場</span>
+    </div>
+    <h1 class="splash-title">PCK道場</h1>
+    <p class="splash-sub">パソコン甲子園 プログラミング 完全攻略</p>
+    <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+    <p class="splash-loading">初期化中...</p>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="app" class="hidden">
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <span class="sl-kanji">道</span>
+        <span class="sl-text">PCK道場</span>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="avatar" id="userAvatar">初</div>
+      <div class="user-info">
+        <div class="user-name" id="userName">はじめて</div>
+        <div class="user-rank" id="userRank">白帯</div>
+      </div>
+      <div class="user-xp">
+        <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
+        <div class="xp-text" id="xpText">0 XP</div>
+      </div>
+    </div>
+
+    <ul class="nav-menu">
+      <li class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">⛩</span>
+        <span class="nav-label">道場入口</span>
+      </li>
+      <li class="nav-item" data-page="curriculum">
+        <span class="nav-icon">📚</span>
+        <span class="nav-label">修行カリキュラム</span>
+      </li>
+      <li class="nav-item" data-page="problems">
+        <span class="nav-icon">⚔️</span>
+        <span class="nav-label">問題演習</span>
+      </li>
+      <li class="nav-item" data-page="judge">
+        <span class="nav-icon">🧪</span>
+        <span class="nav-label">コード道場</span>
+      </li>
+      <li class="nav-item" data-page="visualizer">
+        <span class="nav-icon">🔭</span>
+        <span class="nav-label">アルゴ可視化</span>
+      </li>
+      <li class="nav-item" data-page="achievements">
+        <span class="nav-icon">🏆</span>
+        <span class="nav-label">段位・実績</span>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="streak-badge" id="streakBadge">
+        <span>🔥</span>
+        <span id="streakCount">0</span>日連続
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main id="mainContent">
+
+    <!-- ========== DASHBOARD ========== -->
+    <section id="page-dashboard" class="page active">
+      <div class="page-header">
+        <h2>道場入口</h2>
+        <div class="header-sub">今日も修行を積もう</div>
+      </div>
+
+      <div class="dashboard-hero">
+        <div class="hero-card">
+          <div class="hero-art">
+            <canvas id="progressRing" width="160" height="160"></canvas>
+            <div class="ring-center">
+              <div class="ring-pct" id="ringPct">0%</div>
+              <div class="ring-label">習得率</div>
+            </div>
+          </div>
+          <div class="hero-stats">
+            <h3 id="heroGreeting">ようこそ、道場へ！</h3>
+            <p id="heroBio">まず修行カリキュラムから始めよう。基礎から積み上げれば必ずパソコン甲子園を制覇できる！</p>
+            <div class="stat-row">
+              <div class="stat-box">
+                <div class="stat-num" id="statSolved">0</div>
+                <div class="stat-lbl">解決問題</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-num" id="statXP">0</div>
+                <div class="stat-lbl">総XP</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-num" id="statStreak">0</div>
+                <div class="stat-lbl">連続日数</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="daily-challenge">
+        <div class="dc-header">
+          <span class="dc-icon">⚡</span>
+          <h3>今日の特訓</h3>
+        </div>
+        <div id="dailyChallengeCard" class="dc-card">
+          <div class="dc-content">
+            <div class="dc-tag">基礎問題</div>
+            <div class="dc-title">サーバの負荷予測</div>
+            <div class="dc-desc">A + B × X を計算して出力する</div>
+          </div>
+          <button class="btn-primary" onclick="startDailyChallenge()">挑戦する →</button>
+        </div>
+      </div>
+
+      <div class="topic-grid" id="topicGrid">
+        <!-- populated by JS -->
+      </div>
+    </section>
+
+    <!-- ========== CURRICULUM ========== -->
+    <section id="page-curriculum" class="page">
+      <div class="page-header">
+        <h2>修行カリキュラム</h2>
+        <div class="header-sub">段階的に実力をつけよう</div>
+      </div>
+
+      <div class="curriculum-path" id="curriculumPath">
+        <!-- populated by JS -->
+      </div>
+    </section>
+
+    <!-- ========== PROBLEMS ========== -->
+    <section id="page-problems" class="page">
+      <div class="page-header">
+        <h2>問題演習</h2>
+        <div class="header-sub">実際の過去問に挑戦</div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>難易度</label>
+          <div class="filter-btns" id="diffFilter">
+            <button class="filter-btn active" data-diff="all">すべて</button>
+            <button class="filter-btn" data-diff="1">★ 基礎</button>
+            <button class="filter-btn" data-diff="2">★★ 初級</button>
+            <button class="filter-btn" data-diff="3">★★★ 中級</button>
+            <button class="filter-btn" data-diff="4">★★★★ 上級</button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <label>カテゴリ</label>
+          <select id="catFilter" class="select-field">
+            <option value="all">すべて</option>
+            <option value="math">数学・計算</option>
+            <option value="geometry">幾何</option>
+            <option value="graph">グラフ理論</option>
+            <option value="dp">動的計画法</option>
+            <option value="string">文字列</option>
+            <option value="greedy">貪欲法</option>
+          </select>
+        </div>
+        <input type="text" id="searchProblems" class="search-field" placeholder="🔍 問題を検索...">
+      </div>
+
+      <div class="problem-list" id="problemList">
+        <!-- populated by JS -->
+      </div>
+    </section>
+
+    <!-- ========== CODE JUDGE ========== -->
+    <section id="page-judge" class="page">
+      <div class="page-header">
+        <h2>コード道場</h2>
+        <div class="header-sub" id="judgeSubtitle">問題を選択してコーディングに挑戦</div>
+      </div>
+
+      <div class="judge-layout">
+        <div class="judge-left">
+          <div class="problem-statement" id="problemStatement">
+            <div class="ps-placeholder">
+              <div class="ps-icon">⚔️</div>
+              <p>左のメニューから問題を選ぶか、<br>問題演習から挑戦してください</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="judge-right">
+          <div class="editor-toolbar">
+            <div class="lang-selector">
+              <select id="langSelect" class="select-field-sm">
+                <option value="c">C言語</option>
+                <option value="cpp">C++</option>
+                <option value="python">Python</option>
+                <option value="java">Java</option>
+              </select>
+            </div>
+            <div class="editor-actions">
+              <button class="btn-ghost" onclick="resetCode()">リセット</button>
+              <button class="btn-ghost" onclick="showHint()">💡 ヒント</button>
+              <button class="btn-primary" onclick="runCode()">▶ 実行</button>
+            </div>
+          </div>
+
+          <div class="editor-wrapper">
+            <div class="line-numbers" id="lineNumbers"></div>
+            <textarea id="codeEditor" class="code-editor" spellcheck="false"
+              placeholder="ここにコードを書こう..."
+              oninput="handleEditorInput()"
+              onkeydown="handleEditorKeydown(event)"
+            ></textarea>
+          </div>
+
+          <div class="io-section">
+            <div class="io-panel">
+              <div class="io-label">入力 (stdin)</div>
+              <textarea id="inputArea" class="io-area" placeholder="テスト入力..."></textarea>
+            </div>
+            <div class="io-panel">
+              <div class="io-label">出力</div>
+              <div id="outputArea" class="io-area output-area">実行すると結果が表示されます</div>
+            </div>
+          </div>
+
+          <div id="testResults" class="test-results hidden"></div>
+          <div id="hintBox" class="hint-box hidden"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== VISUALIZER ========== -->
+    <section id="page-visualizer" class="page">
+      <div class="page-header">
+        <h2>アルゴリズム可視化</h2>
+        <div class="header-sub">目で見て理解するアルゴリズム</div>
+      </div>
+
+      <div class="viz-selector">
+        <button class="viz-btn active" data-viz="sort">ソート</button>
+        <button class="viz-btn" data-viz="bfs">幅優先探索</button>
+        <button class="viz-btn" data-viz="dfs">深さ優先探索</button>
+        <button class="viz-btn" data-viz="dp">動的計画法</button>
+        <button class="viz-btn" data-viz="binary">二分探索</button>
+      </div>
+
+      <div class="viz-container">
+        <div class="viz-controls">
+          <button class="btn-ghost" id="vizReset" onclick="vizReset()">↺ リセット</button>
+          <button class="btn-ghost" id="vizStep" onclick="vizStep()">→ ステップ</button>
+          <button class="btn-primary" id="vizPlay" onclick="vizPlayPause()">▶ 自動再生</button>
+          <label>速度: <input type="range" id="vizSpeed" min="1" max="10" value="5"></label>
+        </div>
+        <canvas id="vizCanvas" class="viz-canvas"></canvas>
+        <div class="viz-log" id="vizLog"></div>
+      </div>
+
+      <div class="viz-explanation" id="vizExplanation">
+        <!-- populated by JS -->
+      </div>
+    </section>
+
+    <!-- ========== ACHIEVEMENTS ========== -->
+    <section id="page-achievements" class="page">
+      <div class="page-header">
+        <h2>段位・実績</h2>
+        <div class="header-sub">積み重ねた修行の証</div>
+      </div>
+
+      <div class="rank-display">
+        <div class="rank-card" id="rankCard">
+          <div class="rank-belt" id="rankBelt"></div>
+          <div class="rank-name" id="rankName">白帯</div>
+          <div class="rank-desc" id="rankDesc">道場に入門したばかり</div>
+          <div class="rank-progress">
+            <div class="rp-bar"><div class="rp-fill" id="rpFill"></div></div>
+            <div class="rp-text" id="rpText">次の段位まで: 100 XP</div>
+          </div>
+        </div>
+        <div class="rank-path" id="rankPath">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <h3 class="section-title">実績バッジ</h3>
+      <div class="achievements-grid" id="achievementsGrid">
+        <!-- populated by JS -->
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- PROBLEM DETAIL MODAL -->
+<div id="problemModal" class="modal hidden">
+  <div class="modal-backdrop" onclick="closeModal()"></div>
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- LESSON MODAL -->
+<div id="lessonModal" class="modal hidden">
+  <div class="modal-backdrop" onclick="closeLessonModal()"></div>
+  <div class="modal-content modal-wide">
+    <button class="modal-close" onclick="closeLessonModal()">✕</button>
+    <div id="lessonBody"></div>
+  </div>
+</div>
+
+<!-- NOTIFICATION TOAST -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- CONFETTI CANVAS -->
+<canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+
+<script src="data.js"></script>
+<script src="visualizer.js"></script>
+<script src="judge.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
