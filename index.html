@@ -1,348 +1,1553 @@
+cat > /home/claude/pck-app/pck_dojo.html << 'HTMLEOF'
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PCK道場 — パソコン甲子園 プログラミング学習</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>PCK道場</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0d0d0f;--ink2:#1a1a20;--ink3:#252530;--surface:#15151c;--surface2:#1e1e28;--surface3:#27273a;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);--gold:#e8a020;--gold2:#f0c060;--teal:#20c8b0;--red:#e84040;--green:#30c870;--purple:#8060e8;--text:#e8e8f0;--text2:#a0a0b8;--text3:#606078;--sidebar:240px;--fn:\'Noto Sans JP\',sans-serif;--fm:\'JetBrains Mono\',monospace;--r:12px;--r2:8px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:var(--fn);line-height:1.6;overflow-x:hidden}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:9999;background:var(--ink);transition:opacity .6s,transform .6s}
+#splash.out{opacity:0;pointer-events:none;transform:scale(1.04)}
+.sp-logo{font-size:96px;font-weight:900;color:var(--gold);text-shadow:0 0 60px rgba(232,160,32,.3);line-height:1;text-align:center}
+.sp-title{font-size:32px;font-weight:700;text-align:center;letter-spacing:.1em;margin:8px 0}
+.sp-sub{color:var(--text2);font-size:14px;text-align:center;margin-bottom:32px}
+.sp-bar{width:240px;height:3px;background:var(--surface3);border-radius:2px;margin:0 auto 12px;overflow:hidden}
+.sp-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));animation:fillbar 1.8s ease forwards}
+@keyframes fillbar{from{width:0}to{width:100%}}
+.sp-txt{color:var(--text3);font-size:13px;text-align:center}
+
+/* LAYOUT */
+#app{display:flex;height:100vh}
+#app.hidden{display:none}
+
+/* SIDEBAR */
+#sidebar{width:var(--sidebar);background:var(--ink2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.sb-head{padding:18px 16px 14px;border-bottom:1px solid var(--border)}
+.sb-logo{display:flex;align-items:center;gap:10px}
+.sb-kanji{font-size:30px;font-weight:900;color:var(--gold);text-shadow:0 0 16px rgba(232,160,32,.4)}
+.sb-name{font-size:17px;font-weight:700;letter-spacing:.05em}
+.sb-user{padding:14px 16px;border-bottom:1px solid var(--border)}
+.avatar{width:38px;height:38px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:var(--ink);margin-bottom:6px}
+.uname{font-weight:700;font-size:14px}
+.urank{font-size:12px;color:var(--gold);margin-bottom:6px}
+.xpbar{height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.xpfill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .5s}
+.xptxt{font-size:11px;color:var(--text3)}
+.nav{list-style:none;padding:8px;flex:1;overflow-y:auto}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r2);cursor:pointer;transition:all .18s;color:var(--text2);font-size:14px;margin-bottom:2px;user-select:none}
+.ni:hover{background:var(--surface2);color:var(--text)}
+.ni.active{background:var(--surface3);color:var(--gold);border-left:3px solid var(--gold)}
+.ni-icon{font-size:16px;width:20px;text-align:center}
+.sb-foot{padding:14px;border-top:1px solid var(--border)}
+.streak{display:flex;align-items:center;gap:8px;background:var(--surface3);border-radius:var(--r2);padding:8px 12px;font-size:13px;color:var(--gold);font-weight:700}
+
+/* MAIN */
+#main{flex:1;overflow-y:auto;background:var(--ink)}
+.page{display:none;padding:28px;max-width:1080px}
+.page.active{display:block}
+.ph{margin-bottom:28px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.ph h2{font-size:26px;font-weight:900;letter-spacing:.04em}
+.ph-sub{font-size:13px;color:var(--text3);margin-top:3px}
+
+/* DASHBOARD */
+.hero{background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:26px;display:flex;gap:28px;align-items:center;margin-bottom:28px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40%;right:-5%;width:360px;height:360px;background:radial-gradient(circle,rgba(232,160,32,.05),transparent 70%);pointer-events:none}
+.ring-wrap{position:relative;flex-shrink:0}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-pct{font-size:26px;font-weight:900;color:var(--gold)}
+.ring-lbl{font-size:11px;color:var(--text3)}
+.hero-txt h3{font-size:19px;font-weight:700;margin-bottom:6px}
+.hero-txt p{font-size:13px;color:var(--text2);margin-bottom:18px}
+.stats{display:flex;gap:14px}
+.stat{background:var(--surface3);border-radius:var(--r2);padding:11px 15px;text-align:center;border:1px solid var(--border)}
+.stat-n{font-size:22px;font-weight:900;color:var(--gold)}
+.stat-l{font-size:11px;color:var(--text3);margin-top:2px}
+.dc-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.dc-head h3{font-size:17px;font-weight:700}
+.dc-card{background:linear-gradient(135deg,var(--surface2),var(--surface3));border:1px solid var(--gold);border-radius:var(--r);padding:18px;display:flex;align-items:center;justify-content:space-between;gap:14px;box-shadow:0 0 24px rgba(232,160,32,.07);margin-bottom:28px}
+.dc-tag{display:inline-block;background:var(--gold);color:var(--ink);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:5px}
+.dc-title{font-size:15px;font-weight:700;margin-bottom:3px}
+.dc-desc{font-size:13px;color:var(--text2)}
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.tc{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:18px;cursor:pointer;transition:all .18s}
+.tc:hover{border-color:var(--border2);transform:translateY(-2px)}
+.tc-icon{font-size:26px;margin-bottom:8px}
+.tc-name{font-weight:700;font-size:14px;margin-bottom:3px}
+.tc-cnt{font-size:12px;color:var(--text3)}
+.tc-bar{height:3px;background:var(--surface3);border-radius:2px;margin-top:10px;overflow:hidden}
+.tc-fill{height:100%;border-radius:2px;transition:width .6s}
+
+/* CURRICULUM */
+.lv-sec{margin-bottom:36px}
+.lv-head{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.lv-badge{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.lv-badge.l1{background:rgba(48,200,112,.2);border:2px solid var(--green)}
+.lv-badge.l2{background:rgba(32,200,176,.2);border:2px solid var(--teal)}
+.lv-badge.l3{background:rgba(232,160,32,.2);border:2px solid var(--gold)}
+.lv-badge.l4{background:rgba(232,64,64,.2);border:2px solid var(--red)}
+.lv-title{font-size:19px;font-weight:700}
+.lv-sub{font-size:13px;color:var(--text2)}
+.lessons{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.lc{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:18px;cursor:pointer;transition:all .18s}
+.lc:hover{border-color:var(--border2);transform:translateY(-2px)}
+.lc.done{border-color:rgba(48,200,112,.4);background:rgba(48,200,112,.03)}
+.lc.locked{opacity:.45;cursor:not-allowed}
+.lc-hd{display:flex;justify-content:space-between;margin-bottom:8px}
+.lc-icon{font-size:22px}
+.lc-title{font-weight:700;font-size:15px;margin-bottom:5px}
+.lc-desc{font-size:13px;color:var(--text2);margin-bottom:10px}
+.lc-meta{display:flex;gap:12px;font-size:12px;color:var(--text3)}
+.lc-xp{color:var(--gold);font-weight:700}
+
+/* PROBLEMS */
+.fbar{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:20px;padding:18px;background:var(--surface2);border-radius:var(--r);border:1px solid var(--border)}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:12px;color:var(--text3)}
+.fbts{display:flex;gap:5px;flex-wrap:wrap}
+.fb{background:var(--surface3);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:13px;color:var(--text2);cursor:pointer;transition:all .18s;font-family:var(--fn)}
+.fb:hover{border-color:var(--border2);color:var(--text)}
+.fb.active{background:var(--gold);border-color:var(--gold);color:var(--ink);font-weight:700}
+.sel{background:var(--surface3);border:1px solid var(--border);border-radius:var(--r2);padding:7px 11px;color:var(--text);font-family:var(--fn);font-size:13px}
+.srch{background:var(--surface3);border:1px solid var(--border);border-radius:var(--r2);padding:7px 13px;color:var(--text);font-family:var(--fn);font-size:14px;flex:1;min-width:180px}
+.srch:focus{outline:none;border-color:var(--gold)}
+.plist{display:flex;flex-direction:column;gap:10px}
+.pi{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .18s}
+.pi:hover{border-color:var(--border2);transform:translateX(4px)}
+.pi.solved{border-left:3px solid var(--green)}
+.pi-diff{display:flex;gap:2px;flex-shrink:0}
+.st{font-size:12px}
+.st.on{color:var(--gold)}
+.st.off{color:var(--surface3)}
+.pi-info{flex:1}
+.pi-name{font-weight:700;font-size:14px;margin-bottom:3px}
+.pi-meta{display:flex;gap:10px;font-size:12px;color:var(--text3)}
+.pi-year{color:#a090f8}
+.pi-cat{color:var(--teal)}
+.pi-pts{color:var(--gold);font-weight:700}
+.bsolved{background:rgba(48,200,112,.2);color:var(--green);font-size:12px;padding:3px 9px;border-radius:20px;border:1px solid rgba(48,200,112,.3)}
+
+/* JUDGE */
+.jlay{display:grid;grid-template-columns:1fr 1fr;gap:18px;height:calc(100vh - 130px)}
+.jl,.jr{display:flex;flex-direction:column;overflow:hidden}
+.pstmt{flex:1;overflow-y:auto;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:22px}
+.ps-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;color:var(--text3)}
+.ps-ph-icon{font-size:44px;margin-bottom:14px}
+.ps-title{font-size:20px;font-weight:700;margin-bottom:10px}
+.ps-pts{display:inline-block;background:var(--gold);color:var(--ink);font-size:12px;font-weight:700;padding:3px 11px;border-radius:20px;margin-bottom:14px}
+.ps-sec{margin-bottom:14px}
+.ps-sec h4{font-size:12px;color:var(--text3);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px}
+.ps-sec p{font-size:14px;line-height:1.8}
+.io-ex{background:var(--surface3);border-radius:var(--r2);padding:10px;margin-top:6px}
+.io-ex pre{font-family:var(--fm);font-size:13px;color:var(--teal2,#60e8d8);line-height:1.6}
+.io-ex-lbl{font-size:11px;color:var(--text3);margin-bottom:3px}
+.etbar{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-bottom:none;border-radius:var(--r) var(--r) 0 0;padding:9px 13px;gap:10px}
+.lsel{background:var(--surface3);border:1px solid var(--border);border-radius:var(--r2);padding:5px 9px;color:var(--text);font-family:var(--fm);font-size:13px}
+.eacts{display:flex;gap:7px}
+.ew{display:flex;background:var(--surface2);border:1px solid var(--border);border-bottom:none;min-height:260px;max-height:360px;overflow:hidden}
+.lnums{background:var(--ink2);padding:13px 9px;font-family:var(--fm);font-size:13px;color:var(--text3);text-align:right;line-height:1.6;user-select:none;border-right:1px solid var(--border);min-width:38px;overflow:hidden}
+.ced{flex:1;background:transparent;border:none;padding:13px;font-family:var(--fm);font-size:13px;color:var(--text);line-height:1.6;resize:none;outline:none;tab-size:4;overflow-y:auto}
+.io-sec{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.io-panel{display:flex;flex-direction:column}
+.io-lbl{font-size:11px;color:var(--text3);font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:5px 11px;background:var(--ink2);border:1px solid var(--border);border-bottom:none;border-radius:var(--r2) var(--r2) 0 0}
+.io-area{background:var(--surface2);border:1px solid var(--border);border-radius:0 0 var(--r2) var(--r2);padding:10px;font-family:var(--fm);font-size:13px;color:var(--text);height:88px;resize:none;outline:none;line-height:1.6}
+.oa{overflow-y:auto;white-space:pre-wrap}
+.ok{color:var(--green)}
+.err{color:#ff6060}
+.tres{margin-top:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.tres.hidden{display:none}
+.tres-ttl{font-size:14px;font-weight:700;margin-bottom:10px}
+.tr-case{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.tr-case:last-child{border-bottom:none}
+.tr-res{font-family:var(--fm);color:var(--text3);font-size:12px}
+.hbox{margin-top:10px;background:rgba(128,96,232,.1);border:1px solid rgba(128,96,232,.3);border-radius:var(--r);padding:14px}
+.hbox.hidden{display:none}
+.hbox h4{color:#a090f8;font-size:14px;margin-bottom:7px}
+.hbox p{font-size:13px;color:var(--text2);line-height:1.7}
+
+/* VIZ */
+.vsel{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}
+.vb{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:7px 18px;font-size:14px;color:var(--text2);cursor:pointer;transition:all .18s;font-family:var(--fn)}
+.vb:hover{border-color:var(--border2);color:var(--text)}
+.vb.active{background:var(--teal);border-color:var(--teal);color:var(--ink);font-weight:700}
+.vcon{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:18px;margin-bottom:18px}
+.vctrl{display:flex;align-items:center;gap:11px;margin-bottom:14px;flex-wrap:wrap}
+.vctrl label{font-size:13px;color:var(--text2);display:flex;align-items:center;gap:7px}
+.vctrl input[type=range]{accent-color:var(--teal)}
+.vcanvas{display:block;width:100%;height:280px;background:var(--ink2);border-radius:var(--r);border:1px solid var(--border)}
+.vlog{margin-top:10px;font-family:var(--fm);font-size:12px;color:var(--text2);height:54px;overflow-y:auto;background:var(--ink2);border-radius:var(--r2);padding:7px 11px}
+.vexp{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:22px}
+.vexp-title{font-size:19px;font-weight:700;margin-bottom:10px}
+.vexp-txt{font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:14px}
+.vsteps{display:flex;flex-direction:column;gap:8px}
+.vstep{display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--surface3);border-radius:var(--r2);font-size:13px}
+.vstep-n{width:22px;height:22px;background:var(--teal);color:var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.vstep-t{color:var(--text2);line-height:1.7}
+.vstep-t code{font-family:var(--fm);color:#60e8d8;font-size:12px}
+
+/* ACHIEVEMENTS */
+.rank-area{display:flex;gap:22px;align-items:flex-start;margin-bottom:36px}
+.rcard{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:26px;text-align:center;min-width:190px}
+.rbelt{width:76px;height:18px;border-radius:4px;margin:0 auto 14px}
+.rname{font-size:26px;font-weight:900;margin-bottom:7px}
+.rdesc{font-size:13px;color:var(--text2);margin-bottom:18px}
+.rpbar{height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-bottom:7px}
+.rpfill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px;transition:width .6s}
+.rptxt{font-size:12px;color:var(--text3)}
+.rpath{flex:1;display:flex;flex-direction:column;gap:7px}
+.rstage{display:flex;align-items:center;gap:14px;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);transition:all .18s}
+.rstage.cur{border-color:var(--gold);background:rgba(232,160,32,.05)}
+.rstage.ach{border-color:rgba(48,200,112,.3)}
+.rs-belt{width:38px;height:9px;border-radius:3px}
+.rs-info{flex:1}
+.rs-name{font-weight:700;font-size:14px}
+.rs-req{font-size:12px;color:var(--text3)}
+.sec-ttl{font-size:17px;font-weight:700;margin-bottom:18px}
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:11px}
+.ach-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:18px 14px;text-align:center;transition:all .18s}
+.ach-item.unlocked{border-color:rgba(232,160,32,.4);background:rgba(232,160,32,.04)}
+.ach-item.locked{opacity:.38;filter:grayscale(1)}
+.ach-icon{font-size:30px;margin-bottom:8px}
+.ach-name{font-size:13px;font-weight:700;margin-bottom:3px}
+.ach-desc{font-size:11px;color:var(--text3)}
+
+/* BUTTONS */
+.btn{background:var(--gold);color:var(--ink);border:none;border-radius:var(--r2);padding:9px 18px;font-size:14px;font-weight:700;font-family:var(--fn);cursor:pointer;transition:all .18s}
+.btn:hover{background:var(--gold2);transform:translateY(-1px)}
+.btn-g{background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:var(--r2);padding:7px 14px;font-size:13px;font-family:var(--fn);cursor:pointer;transition:all .18s}
+.btn-g:hover{border-color:var(--border2);color:var(--text)}
+
+/* MODAL */
+.modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center}
+.modal.hidden{display:none}
+.mbg{position:absolute;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px)}
+.mbox{position:relative;z-index:1;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:30px;width:90%;max-width:640px;max-height:82vh;overflow-y:auto;animation:min 0.22s ease}
+.mbox.wide{max-width:920px}
+@keyframes min{from{opacity:0;transform:scale(.95) translateY(8px)}}
+.mclose{position:absolute;top:14px;right:14px;background:var(--surface3);border:1px solid var(--border);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:13px;cursor:pointer;transition:all .18s}
+.mclose:hover{color:var(--text)}
+
+/* LESSON */
+.lcon h2{font-size:24px;font-weight:900;margin-bottom:7px}
+.lcon .ltag{display:inline-block;background:var(--teal);color:var(--ink);font-size:12px;font-weight:700;padding:3px 11px;border-radius:20px;margin-bottom:18px}
+.lcon h3{font-size:17px;font-weight:700;margin:22px 0 9px;color:var(--gold)}
+.lcon p{font-size:14px;color:var(--text2);line-height:1.9;margin-bottom:12px}
+.cblock{background:var(--ink2);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin:14px 0;overflow-x:auto}
+.cblock pre{font-family:var(--fm);font-size:13px;color:var(--text);line-height:1.7;white-space:pre}
+.kw{color:#a090f8}
+.cm{color:var(--text3);font-style:italic}
+.str{color:#60e898}
+.num{color:var(--gold2)}
+.quiz-sec{margin-top:22px;background:var(--surface3);border-radius:var(--r);padding:18px}
+.quiz-q{font-size:15px;font-weight:700;margin-bottom:12px}
+.quiz-opts{display:flex;flex-direction:column;gap:7px}
+.qopt{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:11px 14px;cursor:pointer;font-size:14px;transition:all .18s;text-align:left;font-family:var(--fn);color:var(--text)}
+.qopt:hover{border-color:var(--gold)}
+.qopt.correct{border-color:var(--green);background:rgba(48,200,112,.1);color:var(--green)}
+.qopt.wrong{border-color:var(--red);background:rgba(232,64,64,.1);color:#ff6060}
+.lnav{display:flex;justify-content:flex-end;margin-top:22px;padding-top:14px;border-top:1px solid var(--border)}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:13px 18px;font-size:14px;color:var(--text);z-index:9000;display:flex;align-items:center;gap:9px;box-shadow:0 8px 28px rgba(0,0,0,.4);animation:tin .28s ease;max-width:340px}
+.toast.hidden{display:none}
+@keyframes tin{from{opacity:0;transform:translateY(8px)}}
+.ccanvas{position:fixed;inset:0;pointer-events:none;z-index:8999;width:100%;height:100%}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--ink2)}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
+.hidden{display:none!important}
+</style>
 </head>
 <body>
 
-<!-- ===== SPLASH SCREEN ===== -->
 <div id="splash">
-  <div class="splash-bg"></div>
-  <div class="splash-content">
-    <div class="splash-logo">
-      <span class="logo-kanji">道</span>
-      <span class="logo-sub">場</span>
-    </div>
-    <h1 class="splash-title">PCK道場</h1>
-    <p class="splash-sub">パソコン甲子園 プログラミング 完全攻略</p>
-    <div class="splash-bar"><div class="splash-bar-fill"></div></div>
-    <p class="splash-loading">初期化中...</p>
+  <div>
+    <div class="sp-logo">道場</div>
+    <div class="sp-title">PCK道場</div>
+    <div class="sp-sub">パソコン甲子園 プログラミング 完全攻略</div>
+    <div class="sp-bar"><div class="sp-fill"></div></div>
+    <div class="sp-txt">初期化中...</div>
   </div>
 </div>
 
-<!-- ===== MAIN APP ===== -->
 <div id="app" class="hidden">
-
-  <!-- SIDEBAR -->
   <nav id="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo">
-        <span class="sl-kanji">道</span>
-        <span class="sl-text">PCK道場</span>
-      </div>
+    <div class="sb-head"><div class="sb-logo"><span class="sb-kanji">道</span><span class="sb-name">PCK道場</span></div></div>
+    <div class="sb-user">
+      <div class="avatar" id="uAvatar">初</div>
+      <div class="uname" id="uName">はじめて</div>
+      <div class="urank" id="uRank">白帯</div>
+      <div class="xpbar"><div class="xpfill" id="xpFill" style="width:0%"></div></div>
+      <div class="xptxt" id="xpTxt">0 XP</div>
     </div>
-
-    <div class="sidebar-user">
-      <div class="avatar" id="userAvatar">初</div>
-      <div class="user-info">
-        <div class="user-name" id="userName">はじめて</div>
-        <div class="user-rank" id="userRank">白帯</div>
-      </div>
-      <div class="user-xp">
-        <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
-        <div class="xp-text" id="xpText">0 XP</div>
-      </div>
-    </div>
-
-    <ul class="nav-menu">
-      <li class="nav-item active" data-page="dashboard">
-        <span class="nav-icon">⛩</span>
-        <span class="nav-label">道場入口</span>
-      </li>
-      <li class="nav-item" data-page="curriculum">
-        <span class="nav-icon">📚</span>
-        <span class="nav-label">修行カリキュラム</span>
-      </li>
-      <li class="nav-item" data-page="problems">
-        <span class="nav-icon">⚔️</span>
-        <span class="nav-label">問題演習</span>
-      </li>
-      <li class="nav-item" data-page="judge">
-        <span class="nav-icon">🧪</span>
-        <span class="nav-label">コード道場</span>
-      </li>
-      <li class="nav-item" data-page="visualizer">
-        <span class="nav-icon">🔭</span>
-        <span class="nav-label">アルゴ可視化</span>
-      </li>
-      <li class="nav-item" data-page="achievements">
-        <span class="nav-icon">🏆</span>
-        <span class="nav-label">段位・実績</span>
-      </li>
+    <ul class="nav">
+      <li class="ni active" data-page="dashboard"><span class="ni-icon">⛩</span>道場入口</li>
+      <li class="ni" data-page="curriculum"><span class="ni-icon">📚</span>修行カリキュラム</li>
+      <li class="ni" data-page="problems"><span class="ni-icon">⚔️</span>問題演習</li>
+      <li class="ni" data-page="judge"><span class="ni-icon">✏️</span>コード道場</li>
+      <li class="ni" data-page="visualizer"><span class="ni-icon">🔭</span>アルゴ可視化</li>
+      <li class="ni" data-page="achievements"><span class="ni-icon">🏆</span>段位・実績</li>
     </ul>
-
-    <div class="sidebar-footer">
-      <div class="streak-badge" id="streakBadge">
-        <span>🔥</span>
-        <span id="streakCount">0</span>日連続
-      </div>
-    </div>
+    <div class="sb-foot"><div class="streak">🔥 <span id="streakN">0</span>日連続</div></div>
   </nav>
 
-  <!-- MAIN CONTENT -->
-  <main id="mainContent">
-
-    <!-- ========== DASHBOARD ========== -->
+  <main id="main">
+    <!-- DASHBOARD -->
     <section id="page-dashboard" class="page active">
-      <div class="page-header">
-        <h2>道場入口</h2>
-        <div class="header-sub">今日も修行を積もう</div>
-      </div>
-
-      <div class="dashboard-hero">
-        <div class="hero-card">
-          <div class="hero-art">
-            <canvas id="progressRing" width="160" height="160"></canvas>
-            <div class="ring-center">
-              <div class="ring-pct" id="ringPct">0%</div>
-              <div class="ring-label">習得率</div>
-            </div>
-          </div>
-          <div class="hero-stats">
-            <h3 id="heroGreeting">ようこそ、道場へ！</h3>
-            <p id="heroBio">まず修行カリキュラムから始めよう。基礎から積み上げれば必ずパソコン甲子園を制覇できる！</p>
-            <div class="stat-row">
-              <div class="stat-box">
-                <div class="stat-num" id="statSolved">0</div>
-                <div class="stat-lbl">解決問題</div>
-              </div>
-              <div class="stat-box">
-                <div class="stat-num" id="statXP">0</div>
-                <div class="stat-lbl">総XP</div>
-              </div>
-              <div class="stat-box">
-                <div class="stat-num" id="statStreak">0</div>
-                <div class="stat-lbl">連続日数</div>
-              </div>
-            </div>
+      <div class="ph"><h2>道場入口</h2><div class="ph-sub">今日も修行を積もう</div></div>
+      <div class="hero">
+        <div class="ring-wrap">
+          <canvas id="ringCanvas" width="150" height="150"></canvas>
+          <div class="ring-center"><div class="ring-pct" id="ringPct">0%</div><div class="ring-lbl">習得率</div></div>
+        </div>
+        <div class="hero-txt">
+          <h3 id="heroHi">ようこそ、道場へ！</h3>
+          <p id="heroBio">まず修行カリキュラムから始めよう。基礎から積み上げれば必ずパソコン甲子園を制覇できる！</p>
+          <div class="stats">
+            <div class="stat"><div class="stat-n" id="stSolved">0</div><div class="stat-l">解決問題</div></div>
+            <div class="stat"><div class="stat-n" id="stXP">0</div><div class="stat-l">総XP</div></div>
+            <div class="stat"><div class="stat-n" id="stStreak">0</div><div class="stat-l">連続日数</div></div>
           </div>
         </div>
       </div>
-
-      <div class="daily-challenge">
-        <div class="dc-header">
-          <span class="dc-icon">⚡</span>
-          <h3>今日の特訓</h3>
+      <div class="dc-head"><span>⚡</span><h3>今日の特訓</h3></div>
+      <div class="dc-card">
+        <div>
+          <div class="dc-tag" id="dcTag">基礎問題</div>
+          <div class="dc-title" id="dcTitle">サーバの負荷予測</div>
+          <div class="dc-desc" id="dcDesc">A + B × X を計算して出力する</div>
         </div>
-        <div id="dailyChallengeCard" class="dc-card">
-          <div class="dc-content">
-            <div class="dc-tag">基礎問題</div>
-            <div class="dc-title">サーバの負荷予測</div>
-            <div class="dc-desc">A + B × X を計算して出力する</div>
-          </div>
-          <button class="btn-primary" onclick="startDailyChallenge()">挑戦する →</button>
-        </div>
+        <button class="btn" onclick="startDailyChallenge()">挑戦する →</button>
       </div>
-
-      <div class="topic-grid" id="topicGrid">
-        <!-- populated by JS -->
-      </div>
+      <div class="topic-grid" id="topicGrid"></div>
     </section>
 
-    <!-- ========== CURRICULUM ========== -->
+    <!-- CURRICULUM -->
     <section id="page-curriculum" class="page">
-      <div class="page-header">
-        <h2>修行カリキュラム</h2>
-        <div class="header-sub">段階的に実力をつけよう</div>
-      </div>
-
-      <div class="curriculum-path" id="curriculumPath">
-        <!-- populated by JS -->
-      </div>
+      <div class="ph"><h2>修行カリキュラム</h2><div class="ph-sub">段階的に実力をつけよう</div></div>
+      <div id="currPath"></div>
     </section>
 
-    <!-- ========== PROBLEMS ========== -->
+    <!-- PROBLEMS -->
     <section id="page-problems" class="page">
-      <div class="page-header">
-        <h2>問題演習</h2>
-        <div class="header-sub">実際の過去問に挑戦</div>
-      </div>
-
-      <div class="filter-bar">
-        <div class="filter-group">
-          <label>難易度</label>
-          <div class="filter-btns" id="diffFilter">
-            <button class="filter-btn active" data-diff="all">すべて</button>
-            <button class="filter-btn" data-diff="1">★ 基礎</button>
-            <button class="filter-btn" data-diff="2">★★ 初級</button>
-            <button class="filter-btn" data-diff="3">★★★ 中級</button>
-            <button class="filter-btn" data-diff="4">★★★★ 上級</button>
+      <div class="ph"><h2>問題演習</h2><div class="ph-sub">実際の過去問に挑戦</div></div>
+      <div class="fbar">
+        <div class="fg"><label>難易度</label>
+          <div class="fbts" id="diffBtns">
+            <button class="fb active" data-diff="all">すべて</button>
+            <button class="fb" data-diff="1">★ 基礎</button>
+            <button class="fb" data-diff="2">★★ 初級</button>
+            <button class="fb" data-diff="3">★★★ 中級</button>
+            <button class="fb" data-diff="4">★★★★ 上級</button>
           </div>
         </div>
-        <div class="filter-group">
-          <label>カテゴリ</label>
-          <select id="catFilter" class="select-field">
+        <div class="fg"><label>カテゴリ</label>
+          <select class="sel" id="catSel">
             <option value="all">すべて</option>
             <option value="math">数学・計算</option>
-            <option value="geometry">幾何</option>
             <option value="graph">グラフ理論</option>
             <option value="dp">動的計画法</option>
             <option value="string">文字列</option>
             <option value="greedy">貪欲法</option>
           </select>
         </div>
-        <input type="text" id="searchProblems" class="search-field" placeholder="🔍 問題を検索...">
+        <input class="srch" id="srch" placeholder="🔍 問題を検索...">
       </div>
-
-      <div class="problem-list" id="problemList">
-        <!-- populated by JS -->
-      </div>
+      <div class="plist" id="plist"></div>
     </section>
 
-    <!-- ========== CODE JUDGE ========== -->
+    <!-- JUDGE -->
     <section id="page-judge" class="page">
-      <div class="page-header">
-        <h2>コード道場</h2>
-        <div class="header-sub" id="judgeSubtitle">問題を選択してコーディングに挑戦</div>
-      </div>
-
-      <div class="judge-layout">
-        <div class="judge-left">
-          <div class="problem-statement" id="problemStatement">
-            <div class="ps-placeholder">
-              <div class="ps-icon">⚔️</div>
-              <p>左のメニューから問題を選ぶか、<br>問題演習から挑戦してください</p>
-            </div>
+      <div class="ph"><h2>コード道場</h2><div class="ph-sub" id="jSub">問題を選択してコーディングに挑戦</div></div>
+      <div class="jlay">
+        <div class="jl">
+          <div class="pstmt" id="pstmt">
+            <div class="ps-ph"><div class="ps-ph-icon">⚔️</div><p>問題演習から問題を選んで挑戦してください</p></div>
           </div>
         </div>
-
-        <div class="judge-right">
-          <div class="editor-toolbar">
-            <div class="lang-selector">
-              <select id="langSelect" class="select-field-sm">
-                <option value="c">C言語</option>
-                <option value="cpp">C++</option>
-                <option value="python">Python</option>
-                <option value="java">Java</option>
-              </select>
-            </div>
-            <div class="editor-actions">
-              <button class="btn-ghost" onclick="resetCode()">リセット</button>
-              <button class="btn-ghost" onclick="showHint()">💡 ヒント</button>
-              <button class="btn-primary" onclick="runCode()">▶ 実行</button>
+        <div class="jr">
+          <div class="etbar">
+            <select class="lsel" id="langSel"><option value="c">C言語</option><option value="cpp">C++</option><option value="python">Python</option><option value="java">Java</option></select>
+            <div class="eacts">
+              <button class="btn-g" onclick="doReset()">リセット</button>
+              <button class="btn-g" onclick="doHint()">💡 ヒント</button>
+              <button class="btn" onclick="doRun()">▶ 実行</button>
             </div>
           </div>
-
-          <div class="editor-wrapper">
-            <div class="line-numbers" id="lineNumbers"></div>
-            <textarea id="codeEditor" class="code-editor" spellcheck="false"
-              placeholder="ここにコードを書こう..."
-              oninput="handleEditorInput()"
-              onkeydown="handleEditorKeydown(event)"
-            ></textarea>
+          <div class="ew">
+            <div class="lnums" id="lnums">1</div>
+            <textarea class="ced" id="ced" spellcheck="false" placeholder="ここにコードを書こう..." oninput="onCedInput()" onkeydown="onCedKey(event)"></textarea>
           </div>
-
-          <div class="io-section">
-            <div class="io-panel">
-              <div class="io-label">入力 (stdin)</div>
-              <textarea id="inputArea" class="io-area" placeholder="テスト入力..."></textarea>
-            </div>
-            <div class="io-panel">
-              <div class="io-label">出力</div>
-              <div id="outputArea" class="io-area output-area">実行すると結果が表示されます</div>
-            </div>
+          <div class="io-sec">
+            <div class="io-panel"><div class="io-lbl">入力 (stdin)</div><textarea class="io-area" id="inArea" placeholder="テスト入力..."></textarea></div>
+            <div class="io-panel"><div class="io-lbl">出力</div><div class="io-area oa" id="outArea">実行すると結果が表示されます</div></div>
           </div>
-
-          <div id="testResults" class="test-results hidden"></div>
-          <div id="hintBox" class="hint-box hidden"></div>
+          <div class="tres hidden" id="tres"></div>
+          <div class="hbox hidden" id="hbox"></div>
         </div>
       </div>
     </section>
 
-    <!-- ========== VISUALIZER ========== -->
+    <!-- VISUALIZER -->
     <section id="page-visualizer" class="page">
-      <div class="page-header">
-        <h2>アルゴリズム可視化</h2>
-        <div class="header-sub">目で見て理解するアルゴリズム</div>
+      <div class="ph"><h2>アルゴリズム可視化</h2><div class="ph-sub">目で見て理解するアルゴリズム</div></div>
+      <div class="vsel" id="vsel">
+        <button class="vb active" data-viz="sort">ソート</button>
+        <button class="vb" data-viz="bfs">幅優先探索</button>
+        <button class="vb" data-viz="dfs">深さ優先探索</button>
+        <button class="vb" data-viz="dp">動的計画法</button>
+        <button class="vb" data-viz="binary">二分探索</button>
       </div>
-
-      <div class="viz-selector">
-        <button class="viz-btn active" data-viz="sort">ソート</button>
-        <button class="viz-btn" data-viz="bfs">幅優先探索</button>
-        <button class="viz-btn" data-viz="dfs">深さ優先探索</button>
-        <button class="viz-btn" data-viz="dp">動的計画法</button>
-        <button class="viz-btn" data-viz="binary">二分探索</button>
-      </div>
-
-      <div class="viz-container">
-        <div class="viz-controls">
-          <button class="btn-ghost" id="vizReset" onclick="vizReset()">↺ リセット</button>
-          <button class="btn-ghost" id="vizStep" onclick="vizStep()">→ ステップ</button>
-          <button class="btn-primary" id="vizPlay" onclick="vizPlayPause()">▶ 自動再生</button>
-          <label>速度: <input type="range" id="vizSpeed" min="1" max="10" value="5"></label>
+      <div class="vcon">
+        <div class="vctrl">
+          <button class="btn-g" onclick="V.reset()">↺ リセット</button>
+          <button class="btn-g" onclick="V.step()">→ ステップ</button>
+          <button class="btn" id="vplay" onclick="V.playPause()">▶ 自動再生</button>
+          <label>速度: <input type="range" id="vspeed" min="1" max="10" value="5"></label>
         </div>
-        <canvas id="vizCanvas" class="viz-canvas"></canvas>
-        <div class="viz-log" id="vizLog"></div>
+        <canvas class="vcanvas" id="vcanvas"></canvas>
+        <div class="vlog" id="vlog"></div>
       </div>
-
-      <div class="viz-explanation" id="vizExplanation">
-        <!-- populated by JS -->
-      </div>
+      <div class="vexp" id="vexp"></div>
     </section>
 
-    <!-- ========== ACHIEVEMENTS ========== -->
+    <!-- ACHIEVEMENTS -->
     <section id="page-achievements" class="page">
-      <div class="page-header">
-        <h2>段位・実績</h2>
-        <div class="header-sub">積み重ねた修行の証</div>
-      </div>
-
-      <div class="rank-display">
-        <div class="rank-card" id="rankCard">
-          <div class="rank-belt" id="rankBelt"></div>
-          <div class="rank-name" id="rankName">白帯</div>
-          <div class="rank-desc" id="rankDesc">道場に入門したばかり</div>
-          <div class="rank-progress">
-            <div class="rp-bar"><div class="rp-fill" id="rpFill"></div></div>
-            <div class="rp-text" id="rpText">次の段位まで: 100 XP</div>
-          </div>
+      <div class="ph"><h2>段位・実績</h2><div class="ph-sub">積み重ねた修行の証</div></div>
+      <div class="rank-area">
+        <div class="rcard">
+          <div class="rbelt" id="rbelt"></div>
+          <div class="rname" id="rname">白帯</div>
+          <div class="rdesc" id="rdesc">道場に入門したばかり</div>
+          <div class="rpbar"><div class="rpfill" id="rpfill" style="width:0%"></div></div>
+          <div class="rptxt" id="rptxt">次の段位まで: 200 XP</div>
         </div>
-        <div class="rank-path" id="rankPath">
-          <!-- populated by JS -->
-        </div>
+        <div class="rpath" id="rpath"></div>
       </div>
-
-      <h3 class="section-title">実績バッジ</h3>
-      <div class="achievements-grid" id="achievementsGrid">
-        <!-- populated by JS -->
-      </div>
+      <div class="sec-ttl">実績バッジ</div>
+      <div class="ach-grid" id="achGrid"></div>
     </section>
-
   </main>
 </div>
 
-<!-- PROBLEM DETAIL MODAL -->
-<div id="problemModal" class="modal hidden">
-  <div class="modal-backdrop" onclick="closeModal()"></div>
-  <div class="modal-content">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <div id="modalBody"></div>
-  </div>
+<!-- MODALS -->
+<div class="modal hidden" id="pModal">
+  <div class="mbg" onclick="closeModal('pModal')"></div>
+  <div class="mbox"><button class="mclose" onclick="closeModal('pModal')">✕</button><div id="pModalBody"></div></div>
+</div>
+<div class="modal hidden" id="lModal">
+  <div class="mbg" onclick="closeModal('lModal')"></div>
+  <div class="mbox wide"><button class="mclose" onclick="closeModal('lModal')">✕</button><div id="lModalBody"></div></div>
 </div>
 
-<!-- LESSON MODAL -->
-<div id="lessonModal" class="modal hidden">
-  <div class="modal-backdrop" onclick="closeLessonModal()"></div>
-  <div class="modal-content modal-wide">
-    <button class="modal-close" onclick="closeLessonModal()">✕</button>
-    <div id="lessonBody"></div>
-  </div>
-</div>
+<div class="toast hidden" id="toast"></div>
+<canvas class="ccanvas" id="ccanvas"></canvas>
 
-<!-- NOTIFICATION TOAST -->
-<div id="toast" class="toast hidden"></div>
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const PROBLEMS = [
+  {id:'p2025_1',year:2025,num:1,title:'サーバの負荷予測',points:1,diff:1,cat:'math',tags:['算術','入出力'],desc:'定常負荷A、追加負荷B、ユーザ数Xが与えられる。総負荷 A+B×X を求めよ。',inputDesc:'1行にA, B, X。',outputDesc:'総負荷を出力。',formula:'総負荷 = A + B × X',examples:[{input:'1500 5 200',output:'2500'},{input:'3000 12 850',output:'13200'}],hints:['A + B * X を計算するだけ！','scanf("%d %d %d", &a, &b, &x); で読み込む'],template:{c:'#include <stdio.h>\nint main() {\n    int a, b, x;\n    scanf("%d %d %d", &a, &b, &x);\n    printf("%d\\n", a + b * x);\n    return 0;\n}',cpp:'#include <iostream>\nusing namespace std;\nint main(){\n    int a,b,x; cin>>a>>b>>x;\n    cout<<a+b*x<<endl;\n}',python:'a, b, x = map(int, input().split())\nprint(a + b * x)',java:'import java.util.Scanner;\npublic class Main{\n    public static void main(String[] args){\n        Scanner sc=new Scanner(System.in);\n        int a=sc.nextInt(),b=sc.nextInt(),x=sc.nextInt();\n        System.out.println(a+b*x);\n    }\n}'}},
+  {id:'p2025_2',year:2025,num:2,title:'タワーから見る花火',points:2,diff:1,cat:'math',tags:['条件分岐'],desc:'展望デッキの高さH、花火の球の中心C、半径R。side/up/downを出力せよ。',inputDesc:'1行にH, C, R。',outputDesc:'side / up / down を出力。',examples:[{input:'1000 1200 300',output:'side'},{input:'100 500 100',output:'up'},{input:'1000 500 100',output:'down'}],hints:['最低点=C-R、最高点=C+R','最低点≤H≤最高点→side','最低点>H→up、最高点<H→down'],template:{c:'#include <stdio.h>\nint main(){\n    int h,c,r;\n    scanf("%d %d %d",&h,&c,&r);\n    int lo=c-r,hi=c+r;\n    if(lo<=h&&h<=hi) printf("side\\n");\n    else if(lo>h)    printf("up\\n");\n    else             printf("down\\n");\n    return 0;\n}',cpp:'#include<iostream>\nusing namespace std;\nint main(){\n    int h,c,r;cin>>h>>c>>r;\n    int lo=c-r,hi=c+r;\n    if(lo<=h&&h<=hi)cout<<"side";\n    else if(lo>h)cout<<"up";\n    else cout<<"down";\n    cout<<endl;\n}',python:'h,c,r=map(int,input().split())\nlo,hi=c-r,c+r\nif lo<=h<=hi:print("side")\nelif lo>h:print("up")\nelse:print("down")',java:'import java.util.Scanner;\npublic class Main{\n    public static void main(String[]a){\n        Scanner sc=new Scanner(System.in);\n        int h=sc.nextInt(),c=sc.nextInt(),r=sc.nextInt();\n        int lo=c-r,hi=c+r;\n        if(lo<=h&&h<=hi)System.out.println("side");\n        else if(lo>h)System.out.println("up");\n        else System.out.println("down");\n    }\n}'}},
+  {id:'p2024_1',year:2024,num:1,title:'もらったキャンディ',points:1,diff:1,cat:'math',tags:['算術'],desc:'最初10個持っていた。今C個ある。もらった数を求めよ。',inputDesc:'1行にC。',outputDesc:'もらった数。',examples:[{input:'12',output:'2'},{input:'99',output:'89'}],hints:['C - 10 を出力するだけ！'],template:{c:'#include <stdio.h>\nint main(){\n    int c;scanf("%d",&c);\n    printf("%d\\n",c-10);\n    return 0;\n}',cpp:'#include<iostream>\nusing namespace std;\nint main(){int c;cin>>c;cout<<c-10<<endl;}',python:'print(int(input())-10)',java:'import java.util.Scanner;\npublic class Main{\n    public static void main(String[]a){\n        System.out.println(new Scanner(System.in).nextInt()-10);\n    }\n}'}},
+  {id:'p2024_2',year:2024,num:2,title:'神輿の担ぎ手',points:2,diff:1,cat:'math',tags:['条件分岐','切り上げ'],desc:'N人、1人c、神輿w。担げるか判定し最低人数を求めよ。',inputDesc:'1行目にN。2行目にc, w。',outputDesc:'"Yes"と人数、または"No"。',examples:[{input:'10\n50 250',output:'Yes\n5'},{input:'10\n50 650',output:'No'}],hints:['必要=(w+c-1)/c','必要>N→"No"'],template:{c:'#include <stdio.h>\nint main(){\n    int n,c,w;\n    scanf("%d",&n);scanf("%d %d",&c,&w);\n    int need=(w+c-1)/c;\n    if(need<=n)printf("Yes\\n%d\\n",need);\n    else printf("No\\n");\n    return 0;\n}',cpp:'#include<iostream>\nusing namespace std;\nint main(){int n,c,w;cin>>n>>c>>w;int need=(w+c-1)/c;if(need<=n)cout<<"Yes\\n"<<need<<endl;else cout<<"No"<<endl;}',python:'import math\nn=int(input())\nc,w=map(int,input().split())\nneed=math.ceil(w/c)\nif need<=n:\n    print("Yes");print(need)\nelse:print("No")',java:'import java.util.Scanner;\npublic class Main{\n    public static void main(String[]a){\n        Scanner sc=new Scanner(System.in);\n        int n=sc.nextInt(),c=sc.nextInt(),w=sc.nextInt();\n        int need=(w+c-1)/c;\n        if(need<=n){System.out.println("Yes");System.out.println(need);}\n        else System.out.println("No");\n    }\n}'}},
+  {id:'p2023_1',year:2023,num:1,title:'キャンディの分配',points:1,diff:1,cat:'math',tags:['剰余'],desc:'A個をN+1人で均等に分けたとき余る数。',inputDesc:'1行にA, N。',outputDesc:'余った数。',examples:[{input:'5 1',output:'1'},{input:'10 10',output:'10'}],hints:['A % (N+1) が答え'],template:{c:'#include <stdio.h>\nint main(){\n    int a,n;scanf("%d %d",&a,&n);\n    printf("%d\\n",a%(n+1));\n    return 0;\n}',cpp:'#include<iostream>\nusing namespace std;\nint main(){int a,n;cin>>a>>n;cout<<a%(n+1)<<endl;}',python:'a,n=map(int,input().split())\nprint(a%(n+1))',java:'import java.util.Scanner;\npublic class Main{\n    public static void main(String[]a){\n        Scanner sc=new Scanner(System.in);\n        int x=sc.nextInt(),n=sc.nextInt();\n        System.out.println(x%(n+1));\n    }\n}'}},
+  {id:'p2024_3',year:2024,num:3,title:'ラッキーナンバー',points:3,diff:1,cat:'string',tags:['文字列'],desc:'整数nの10進表記に数字dが何個含まれるか。',inputDesc:'1行にd, n。',outputDesc:'個数。',examples:[{input:'9 19191',output:'2'},{input:'0 1234',output:'0'}],hints:['nを文字列化して数える','sprintf(buf,"%d",n);'],template:{c:'#include <stdio.h>\n#include <string.h>\nint main(){\n    int d,n;scanf("%d %d",&d,&n);\n    char buf[20];sprintf(buf,"%d",n);\n    int cnt=0;\n    for(int i=0;buf[i];i++)if(buf[i]-\'0\'==d)cnt++;\n    printf("%d\\n",cnt);\n    return 0;\n}',cpp:'#include<bits/stdc++.h>\nusing namespace std;\nint main(){int d,n;cin>>d>>n;string s=to_string(n);cout<<count(s.begin(),s.end(),\'0\'+d)<<endl;}',python:'d,n=map(int,input().split())\nprint(str(n).count(str(d)))',java:'import java.util.Scanner;\npublic class Main{\n    public static void main(String[]a){\n        Scanner sc=new Scanner(System.in);int d=sc.nextInt(),n=sc.nextInt(),cnt=0;\n        for(char c:Integer.toString(n).toCharArray())if(c-\'0\'==d)cnt++;\n        System.out.println(cnt);\n    }\n}'}},
+  {id:'pex_01',year:0,num:0,title:'最大値と最小値',points:1,diff:1,cat:'math',tags:['ループ'],desc:'N個の整数の最大値と最小値を出力せよ。',inputDesc:'1行目にN。2行目にN個の整数。',outputDesc:'最大値 最小値 を空白区切りで出力。',examples:[{input:'5\n3 1 4 1 5',output:'5 1'}],hints:['最初の要素をmax,minにセット','ループで比較・更新'],template:{c:'#include <stdio.h>\nint main(){\n    int n;scanf("%d",&n);\n    int a[100];\n    for(int i=0;i<n;i++)scanf("%d",&a[i]);\n    int mx=a[0],mn=a[0];\n    for(int i=1;i<n;i++){if(a[i]>mx)mx=a[i];if(a[i]<mn)mn=a[i];}\n    printf("%d %d\\n",mx,mn);\n    return 0;\n}',cpp:'#include<bits/stdc++.h>\nusing namespace std;\nint main(){int n;cin>>n;vector<int>a(n);for(auto&x:a)cin>>x;cout<<*max_element(a.begin(),a.end())<<" "<<*min_element(a.begin(),a.end())<<endl;}',python:'n=int(input())\na=list(map(int,input().split()))\nprint(max(a),min(a))',java:'import java.util.*;\npublic class Main{\n    public static void main(String[]a){\n        Scanner sc=new Scanner(System.in);int n=sc.nextInt();\n        int[]arr=new int[n];for(int i=0;i<n;i++)arr[i]=sc.nextInt();\n        int mx=arr[0],mn=arr[0];\n        for(int x:arr){mx=Math.max(mx,x);mn=Math.min(mn,x);}\n        System.out.println(mx+" "+mn);\n    }\n}'}},
+  {id:'pex_02',year:0,num:0,title:'FizzBuzz',points:1,diff:1,cat:'math',tags:['ループ','剰余'],desc:'1からN、3の倍数→Fizz、5の倍数→Buzz、両方→FizzBuzz。',inputDesc:'1行にN。',outputDesc:'N行出力。',examples:[{input:'15',output:'1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz'}],hints:['15の倍数を最初に判定する'],template:{c:'#include <stdio.h>\nint main(){\n    int n;scanf("%d",&n);\n    for(int i=1;i<=n;i++){\n        if(i%15==0)printf("FizzBuzz\\n");\n        else if(i%3==0)printf("Fizz\\n");\n        else if(i%5==0)printf("Buzz\\n");\n        else printf("%d\\n",i);\n    }\n    return 0;\n}',cpp:'#include<iostream>\nusing namespace std;\nint main(){int n;cin>>n;for(int i=1;i<=n;i++){if(i%15==0)cout<<"FizzBuzz";else if(i%3==0)cout<<"Fizz";else if(i%5==0)cout<<"Buzz";else cout<<i;cout<<endl;}}',python:'n=int(input())\nfor i in range(1,n+1):\n    if i%15==0:print("FizzBuzz")\n    elif i%3==0:print("Fizz")\n    elif i%5==0:print("Buzz")\n    else:print(i)',java:'import java.util.Scanner;\npublic class Main{\n    public static void main(String[]a){\n        int n=new Scanner(System.in).nextInt();\n        for(int i=1;i<=n;i++){if(i%15==0)System.out.println("FizzBuzz");else if(i%3==0)System.out.println("Fizz");else if(i%5==0)System.out.println("Buzz");else System.out.println(i);}\n    }\n}'}},
+  {id:'p2025_3',year:2025,num:3,title:'登山記録の集計',points:3,diff:2,cat:'math',tags:['2次元配列','最大値'],desc:'N個の山にM回登った記録。各山の高さ（最大到達高さ）の和を求めよ。',inputDesc:'1行目にN, M。続くN行にM個の到達高さ。',outputDesc:'山の高さの和。',examples:[{input:'3 2\n10 30\n100 45\n500 500',output:'630'},{input:'2 4\n2 2 1 4\n5 8 5 8',output:'12'}],hints:['各山の高さ=M回の記録の最大値','外ループN、内ループM'],template:{c:'#include <stdio.h>\nint main(){\n    int n,m;scanf("%d %d",&n,&m);\n    int ans=0;\n    for(int i=0;i<n;i++){\n        int peak=0;\n        for(int j=0;j<m;j++){int h;scanf("%d",&h);if(h>peak)peak=h;}\n        ans+=peak;\n    }\n    printf("%d\\n",ans);\n    return 0;\n}',cpp:'#include<bits/stdc++.h>\nusing namespace std;\nint main(){int n,m;cin>>n>>m;int ans=0;for(int i=0;i<n;i++){int pk=0;for(int j=0;j<m;j++){int h;cin>>h;pk=max(pk,h);}ans+=pk;}cout<<ans<<endl;}',python:'n,m=map(int,input().split())\nans=0\nfor _ in range(n):ans+=max(map(int,input().split()))\nprint(ans)',java:'import java.util.Scanner;\npublic class Main{\n    public static void main(String[]a){\n        Scanner sc=new Scanner(System.in);\n        int n=sc.nextInt(),m=sc.nextInt(),ans=0;\n        for(int i=0;i<n;i++){int pk=0;for(int j=0;j<m;j++){int h=sc.nextInt();if(h>pk)pk=h;}ans+=pk;}\n        System.out.println(ans);\n    }\n}'}},
+  {id:'p2023_3',year:2023,num:3,title:'菌の祖先',points:3,diff:2,cat:'math',tags:['再帰'],desc:'番号bから番号1まで親子関係をさかのぼって出力。親=floor(b/2)。',inputDesc:'1行に菌の番号b。',outputDesc:'bから1まで1行ずつ。',examples:[{input:'5',output:'5\n2\n1'},{input:'12',output:'12\n6\n3\n1'}],hints:['while(b>=1){print(b); b=b/2;}'],template:{c:'#include <stdio.h>\nint main(){\n    int b;scanf("%d",&b);\n    while(b>=1){printf("%d\\n",b);b=b/2;}\n    return 0;\n}',cpp:'#include<iostream>\nusing namespace std;\nint main(){int b;cin>>b;while(b>=1){cout<<b<<endl;b/=2;}}',python:'b=int(input())\nwhile b>=1:\n    print(b);b//=2',java:'import java.util.Scanner;\npublic class Main{\n    public static void main(String[]a){\n        int b=new Scanner(System.in).nextInt();\n        while(b>=1){System.out.println(b);b/=2;}\n    }\n}'}},
+  {id:'p2023_5',year:2023,num:5,title:'2023に似た数',points:5,diff:2,cat:'math',tags:['素数','数論'],desc:'N が p×p×q（p≠q、両方素数）の形か判定せよ。',inputDesc:'1行にN。',outputDesc:'"Yes"/"No"。',examples:[{input:'2023',output:'Yes'},{input:'12',output:'Yes'},{input:'27',output:'No'}],hints:['pを2から探す（p³≤Nまで）','N%(p²)==0 ならq=N/p²を確認'],template:{c:'#include <stdio.h>\n#include <stdbool.h>\nbool ip(long long n){if(n<2)return false;for(long long i=2;i*i<=n;i++)if(n%i==0)return false;return true;}\nint main(){\n    long long n;scanf("%lld",&n);\n    bool ok=false;\n    for(long long p=2;p*p*p<=n;p++){\n        if(!ip(p))continue;\n        if(n%(p*p)==0){long long q=n/p/p;if(ip(q)&&q!=p){ok=true;break;}}\n    }\n    printf(ok?"Yes\\n":"No\\n");\n    return 0;\n}',cpp:'#include<bits/stdc++.h>\nusing namespace std;\nbool ip(long long n){if(n<2)return 0;for(long long i=2;i*i<=n;i++)if(n%i==0)return 0;return 1;}\nint main(){long long n;cin>>n;bool ok=0;for(long long p=2;p*p*p<=n;p++)if(ip(p)&&n%(p*p)==0){long long q=n/p/p;if(ip(q)&&q!=p){ok=1;break;}}cout<<(ok?"Yes":"No")<<endl;}',python:'def ip(n):\n    if n<2:return False\n    i=2\n    while i*i<=n:\n        if n%i==0:return False\n        i+=1\n    return True\nn=int(input())\nok=False;p=2\nwhile p*p*p<=n:\n    if ip(p) and n%(p*p)==0:\n        q=n//p//p\n        if ip(q) and q!=p:ok=True;break\n    p+=1\nprint("Yes"if ok else"No")',java:'import java.util.Scanner;\npublic class Main{\n    static boolean ip(long n){if(n<2)return false;for(long i=2;i*i<=n;i++)if(n%i==0)return false;return true;}\n    public static void main(String[]a){\n        long n=new Scanner(System.in).nextLong();boolean ok=false;\n        for(long p=2;p*p*p<=n;p++)if(ip(p)&&n%(p*p)==0){long q=n/p/p;if(ip(q)&&q!=p){ok=true;break;}}\n        System.out.println(ok?"Yes":"No");\n    }\n}'}},
+  {id:'pex_03',year:0,num:0,title:'回文判定',points:2,diff:2,cat:'string',tags:['文字列'],desc:'文字列が回文か判定せよ。',inputDesc:'1行に文字列S。',outputDesc:'"Yes"/"No"。',examples:[{input:'racecar',output:'Yes'},{input:'hello',output:'No'}],hints:['S[i]とS[n-1-i]を比較','ループはi<n/2まで'],template:{c:'#include <stdio.h>\n#include <string.h>\nint main(){\n    char s[105];scanf("%s",s);\n    int n=strlen(s),ok=1;\n    for(int i=0;i<n/2;i++)if(s[i]!=s[n-1-i]){ok=0;break;}\n    printf(ok?"Yes\\n":"No\\n");\n    return 0;\n}',cpp:'#include<bits/stdc++.h>\nusing namespace std;\nint main(){string s;cin>>s;string r=s;reverse(r.begin(),r.end());cout<<(s==r?"Yes":"No")<<endl;}',python:'s=input();print("Yes"if s==s[::-1]else"No")',java:'import java.util.Scanner;\npublic class Main{\n    public static void main(String[]a){\n        String s=new Scanner(System.in).next();\n        System.out.println(s.equals(new StringBuilder(s).reverse().toString())?"Yes":"No");\n    }\n}'}},
+  {id:'pex_04',year:0,num:0,title:'GCDとLCM',points:3,diff:2,cat:'math',tags:['GCD','LCM'],desc:'2つの正整数のGCDとLCMを求めよ。',inputDesc:'1行にA, B。',outputDesc:'GCD LCM を空白区切りで出力。',examples:[{input:'12 8',output:'4 24'},{input:'7 13',output:'1 91'}],hints:['gcd(a,b)=gcd(b,a%b)','LCM=A*B/GCD、long long使う'],template:{c:'#include <stdio.h>\nlong long gcd(long long a,long long b){return b==0?a:gcd(b,a%b);}\nint main(){\n    long long a,b;scanf("%lld %lld",&a,&b);\n    long long g=gcd(a,b);\n    printf("%lld %lld\\n",g,a/g*b);\n    return 0;\n}',cpp:'#include<bits/stdc++.h>\nusing namespace std;\nint main(){long long a,b;cin>>a>>b;long long g=__gcd(a,b);cout<<g<<" "<<a/g*b<<endl;}',python:'from math import gcd\na,b=map(int,input().split())\ng=gcd(a,b);print(g,a//g*b)',java:'import java.util.Scanner;\npublic class Main{\n    static long gcd(long a,long b){return b==0?a:gcd(b,a%b);}\n    public static void main(String[]a){\n        Scanner sc=new Scanner(System.in);long x=sc.nextLong(),y=sc.nextLong();\n        long g=gcd(x,y);System.out.println(g+" "+x/g*y);\n    }\n}'}},
+  {id:'p2025_5',year:2025,num:5,title:'二つの数列',points:6,diff:3,cat:'greedy',tags:['貪欲法','ソート'],desc:'数列A,BにK回操作（a[i]をb[i]で置換）して差の和を最大化。',inputDesc:'1行目にN, K。2行目にA、3行目にB。',outputDesc:'最大値。',examples:[{input:'5 1\n0 2 1 3 4\n-2 1 0 2 3',output:'5'},{input:'5 2\n0 1 2 3 4\n-2 0 1 2 3',output:'4'}],hints:['差d[i]=a[i]-b[i]を昇順ソート','負のものからK個を置換（→0になる）'],template:{c:'#include <stdio.h>\n#include <stdlib.h>\nint cmp(const void*x,const void*y){return *(int*)x-*(int*)y;}\nint main(){\n    int n,k;scanf("%d %d",&n,&k);\n    int a[100000],b[100000],d[100000];\n    for(int i=0;i<n;i++)scanf("%d",&a[i]);\n    for(int i=0;i<n;i++)scanf("%d",&b[i]);\n    long long sum=0;\n    for(int i=0;i<n;i++){d[i]=a[i]-b[i];sum+=d[i];}\n    qsort(d,n,sizeof(int),cmp);\n    for(int i=0;i<k;i++)if(d[i]<0)sum-=d[i];\n    printf("%lld\\n",sum);\n    return 0;\n}',cpp:'#include<bits/stdc++.h>\nusing namespace std;\nint main(){int n,k;cin>>n>>k;vector<int>a(n),b(n);for(auto&x:a)cin>>x;for(auto&x:b)cin>>x;vector<int>d(n);long long sum=0;for(int i=0;i<n;i++){d[i]=a[i]-b[i];sum+=d[i];}sort(d.begin(),d.end());for(int i=0;i<k;i++)if(d[i]<0)sum-=d[i];cout<<sum<<endl;}',python:'n,k=map(int,input().split())\na=list(map(int,input().split()))\nb=list(map(int,input().split()))\nd=sorted([a[i]-b[i]for i in range(n)])\ntotal=sum(d)\nfor i in range(k):\n    if d[i]<0:total-=d[i]\nprint(total)',java:'import java.util.*;\npublic class Main{\n    public static void main(String[]a){\n        Scanner sc=new Scanner(System.in);int n=sc.nextInt(),k=sc.nextInt();\n        int[]arr=new int[n],b=new int[n];\n        for(int i=0;i<n;i++)arr[i]=sc.nextInt();\n        for(int i=0;i<n;i++)b[i]=sc.nextInt();\n        int[]d=new int[n];long sum=0;\n        for(int i=0;i<n;i++){d[i]=arr[i]-b[i];sum+=d[i];}\n        Arrays.sort(d);\n        for(int i=0;i<k;i++)if(d[i]<0)sum-=d[i];\n        System.out.println(sum);\n    }\n}'}},
+  {id:'p2024_5',year:2024,num:5,title:'データセンター',points:6,diff:3,cat:'greedy',tags:['貪欲法','ソート'],desc:'N台中M台を空にしたい。移動できるか判定せよ。',inputDesc:'1行目にN, M。続くN行にci, ai。',outputDesc:'"Yes"/"No"。',examples:[{input:'5 2\n3 2\n2 2\n6 5\n5 4\n4 1',output:'Yes'},{input:'3 1\n100 95\n100 85\n100 21',output:'No'}],hints:['ファイルが多い台をM台選んで空にする','残りの空き≥M台のファイル合計→"Yes"'],template:{c:'#include <stdio.h>\nint main(){\n    int n,m;scanf("%d %d",&n,&m);\n    int c[1000],a[1000];\n    for(int i=0;i<n;i++)scanf("%d %d",&c[i],&a[i]);\n    int idx[1000];for(int i=0;i<n;i++)idx[i]=i;\n    for(int i=0;i<n-1;i++)for(int j=0;j<n-1-i;j++)if(a[idx[j]]<a[idx[j+1]]){int t=idx[j];idx[j]=idx[j+1];idx[j+1]=t;}\n    long long need=0,cap=0;\n    for(int i=0;i<m;i++)need+=a[idx[i]];\n    for(int i=m;i<n;i++)cap+=c[idx[i]]-a[idx[i]];\n    printf(need<=cap?"Yes\\n":"No\\n");\n    return 0;\n}',cpp:'#include<bits/stdc++.h>\nusing namespace std;\nint main(){int n,m;cin>>n>>m;vector<pair<int,int>>sv(n);for(auto&p:sv)cin>>p.first>>p.second;sort(sv.begin(),sv.end(),[](auto&a,auto&b){return a.second>b.second;});long long need=0,cap=0;for(int i=0;i<m;i++)need+=sv[i].second;for(int i=m;i<n;i++)cap+=sv[i].first-sv[i].second;cout<<(need<=cap?"Yes":"No")<<endl;}',python:'n,m=map(int,input().split())\nsv=[list(map(int,input().split()))for _ in range(n)]\nsv.sort(key=lambda x:-x[1])\nneed=sum(s[1]for s in sv[:m])\ncap=sum(s[0]-s[1]for s in sv[m:])\nprint("Yes"if need<=cap else"No")',java:'import java.util.*;\npublic class Main{\n    public static void main(String[]a){\n        Scanner sc=new Scanner(System.in);int n=sc.nextInt(),m=sc.nextInt();\n        int[][]s=new int[n][2];for(int i=0;i<n;i++){s[i][0]=sc.nextInt();s[i][1]=sc.nextInt();}\n        Arrays.sort(s,(x,y)->y[1]-x[1]);\n        long need=0,cap=0;\n        for(int i=0;i<m;i++)need+=s[i][1];for(int i=m;i<n;i++)cap+=s[i][0]-s[i][1];\n        System.out.println(need<=cap?"Yes":"No");\n    }\n}'}},
+  {id:'p2024_6',year:2024,num:6,title:'湖の調査',points:6,diff:3,cat:'graph',tags:['BFS','グリッド'],desc:'グリッドで海とつながっていない水面（湖）の数を求めよ。',inputDesc:'1行目にH, W。続くH行に"#"(地面)と"."(水面)の文字列。',outputDesc:'湖の数。',examples:[{input:'4 14\n###...###..##.\n#..#..##..####\n#.##.##..##..#\n###..#########',output:'2'}],hints:['外周の水面からBFSで海をマーク','残った水面の連結成分数が湖の数'],template:{c:'#include <stdio.h>\n#include <string.h>\n#define MX 205\nchar g[MX][MX];int vis[MX][MX],H,W;\nint qx[MX*MX],qy[MX*MX],hd,tl;\nint dx[]={0,0,1,-1},dy[]={1,-1,0,0};\nvoid bfs(int sx,int sy){\n    hd=tl=0;qx[tl]=sx;qy[tl]=sy;tl++;vis[sx][sy]=1;\n    while(hd<tl){int x=qx[hd],y=qy[hd];hd++;\n        for(int d=0;d<4;d++){int nx=x+dx[d],ny=y+dy[d];\n            if(nx>=0&&nx<H&&ny>=0&&ny<W&&!vis[nx][ny]&&g[nx][ny]==\'.\'){vis[nx][ny]=1;qx[tl]=nx;qy[tl]=ny;tl++;}}}\n}\nint main(){\n    scanf("%d %d",&H,&W);\n    for(int i=0;i<H;i++)scanf("%s",g[i]);\n    for(int i=0;i<H;i++){if(!vis[i][0]&&g[i][0]==\'.\')bfs(i,0);if(!vis[i][W-1]&&g[i][W-1]==\'.\')bfs(i,W-1);}\n    for(int j=0;j<W;j++){if(!vis[0][j]&&g[0][j]==\'.\')bfs(0,j);if(!vis[H-1][j]&&g[H-1][j]==\'.\')bfs(H-1,j);}\n    int lake=0;\n    for(int i=0;i<H;i++)for(int j=0;j<W;j++)if(!vis[i][j]&&g[i][j]==\'.\')bfs(i,j),lake++;\n    printf("%d\\n",lake);\n    return 0;\n}',cpp:'#include<bits/stdc++.h>\nusing namespace std;\nint H,W;string g[205];bool v[205][205];\nint dx[]={0,0,1,-1},dy[]={1,-1,0,0};\nvoid bfs(int sx,int sy){queue<pair<int,int>>q;q.push({sx,sy});v[sx][sy]=1;while(!q.empty()){auto[x,y]=q.front();q.pop();for(int d=0;d<4;d++){int nx=x+dx[d],ny=y+dy[d];if(nx>=0&&nx<H&&ny>=0&&ny<W&&!v[nx][ny]&&g[nx][ny]==\'.\')v[nx][ny]=1,q.push({nx,ny});}}}\nint main(){cin>>H>>W;for(int i=0;i<H;i++)cin>>g[i];for(int i=0;i<H;i++){if(!v[i][0]&&g[i][0]==\'.\')bfs(i,0);if(!v[i][W-1]&&g[i][W-1]==\'.\')bfs(i,W-1);}for(int j=0;j<W;j++){if(!v[0][j]&&g[0][j]==\'.\')bfs(0,j);if(!v[H-1][j]&&g[H-1][j]==\'.\')bfs(H-1,j);}int ans=0;for(int i=0;i<H;i++)for(int j=0;j<W;j++)if(!v[i][j]&&g[i][j]==\'.\')bfs(i,j),ans++;cout<<ans<<endl;}',python:'from collections import deque\nH,W=map(int,input().split())\ngrid=[input()for _ in range(H)]\nvis=[[False]*W for _ in range(H)]\ndef bfs(sx,sy):\n    q=deque([(sx,sy)]);vis[sx][sy]=True\n    while q:\n        x,y=q.popleft()\n        for dx,dy in[(0,1),(0,-1),(1,0),(-1,0)]:\n            nx,ny=x+dx,y+dy\n            if 0<=nx<H and 0<=ny<W and not vis[nx][ny] and grid[nx][ny]==\'.\':\n                vis[nx][ny]=True;q.append((nx,ny))\nfor i in range(H):\n    for j in[0,W-1]:\n        if not vis[i][j] and grid[i][j]==\'.\':bfs(i,j)\nfor j in range(W):\n    for i in[0,H-1]:\n        if not vis[i][j] and grid[i][j]==\'.\':bfs(i,j)\nlake=0\nfor i in range(H):\n    for j in range(W):\n        if not vis[i][j] and grid[i][j]==\'.\':bfs(i,j);lake+=1\nprint(lake)',java:'import java.util.*;\npublic class Main{\n    static int H,W;static char[][]g;static boolean[][]v;\n    static int[]dx={0,0,1,-1},dy={1,-1,0,0};\n    static void bfs(int sx,int sy){Queue<int[]>q=new LinkedList<>();q.add(new int[]{sx,sy});v[sx][sy]=true;while(!q.isEmpty()){int[]p=q.poll();for(int d=0;d<4;d++){int nx=p[0]+dx[d],ny=p[1]+dy[d];if(nx>=0&&nx<H&&ny>=0&&ny<W&&!v[nx][ny]&&g[nx][ny]==\'.\'){v[nx][ny]=true;q.add(new int[]{nx,ny});}}}}\n    public static void main(String[]a){Scanner sc=new Scanner(System.in);H=sc.nextInt();W=sc.nextInt();g=new char[H][];v=new boolean[H][W];for(int i=0;i<H;i++)g[i]=sc.next().toCharArray();for(int i=0;i<H;i++){if(!v[i][0]&&g[i][0]==\'.\')bfs(i,0);if(!v[i][W-1]&&g[i][W-1]==\'.\')bfs(i,W-1);}for(int j=0;j<W;j++){if(!v[0][j]&&g[0][j]==\'.\')bfs(0,j);if(!v[H-1][j]&&g[H-1][j]==\'.\')bfs(H-1,j);}int ans=0;for(int i=0;i<H;i++)for(int j=0;j<W;j++)if(!v[i][j]&&g[i][j]==\'.\'){bfs(i,j);ans++;}System.out.println(ans);}\n}'}},
+  {id:'pex_05',year:0,num:0,title:'ナップサック問題',points:6,diff:3,cat:'dp',tags:['動的計画法'],desc:'N個の荷物（重さw、価値v）と容量W。価値の最大値を求めよ。',inputDesc:'1行目にN, W。続くN行にw, v。',outputDesc:'最大価値。',examples:[{input:'3 10\n5 10\n4 8\n3 6',output:'16'}],hints:['dp[j]=重さj以内の最大価値','逆順ループが重要'],template:{c:'#include <stdio.h>\nlong long dp[10005];\nint main(){\n    int n,W;scanf("%d %d",&n,&W);\n    for(int i=0;i<n;i++){\n        int w,v;scanf("%d %d",&w,&v);\n        for(int j=W;j>=w;j--)if(dp[j-w]+v>dp[j])dp[j]=dp[j-w]+v;\n    }\n    printf("%lld\\n",dp[W]);\n    return 0;\n}',cpp:'#include<bits/stdc++.h>\nusing namespace std;\nint main(){int n,W;cin>>n>>W;vector<long long>dp(W+1,0);for(int i=0;i<n;i++){int w,v;cin>>w>>v;for(int j=W;j>=w;j--)dp[j]=max(dp[j],dp[j-w]+v);}cout<<dp[W]<<endl;}',python:'n,W=map(int,input().split())\ndp=[0]*(W+1)\nfor _ in range(n):\n    w,v=map(int,input().split())\n    for j in range(W,w-1,-1):dp[j]=max(dp[j],dp[j-w]+v)\nprint(dp[W])',java:'import java.util.Scanner;\npublic class Main{\n    public static void main(String[]a){\n        Scanner sc=new Scanner(System.in);int n=sc.nextInt(),W=sc.nextInt();\n        long[]dp=new long[W+1];\n        for(int i=0;i<n;i++){int w=sc.nextInt(),v=sc.nextInt();for(int j=W;j>=w;j--)dp[j]=Math.max(dp[j],dp[j-w]+v);}\n        System.out.println(dp[W]);\n    }\n}'}},
+  {id:'pex_06',year:0,num:0,title:'コイン問題',points:5,diff:3,cat:'dp',tags:['動的計画法','DP'],desc:'N種コイン（無限枚）でX円を作る最少枚数。',inputDesc:'1行目にN, X。2行目にN種のコイン。',outputDesc:'最少枚数（無理なら-1）。',examples:[{input:'3 11\n1 3 5',output:'3'},{input:'2 3\n2 4',output:'-1'}],hints:['dp[i]=i円の最少枚数（dp[0]=0）','各コインcでdp[i]=min(dp[i],dp[i-c]+1)'],template:{c:'#include <stdio.h>\n#define INF 1000000\nint dp[10005];\nint main(){\n    int n,x;scanf("%d %d",&n,&x);\n    int c[20];for(int i=0;i<n;i++)scanf("%d",&c[i]);\n    for(int i=1;i<=x;i++)dp[i]=INF;\n    for(int i=1;i<=x;i++)for(int j=0;j<n;j++)if(c[j]<=i&&dp[i-c[j]]+1<dp[i])dp[i]=dp[i-c[j]]+1;\n    printf("%d\\n",dp[x]==INF?-1:dp[x]);\n    return 0;\n}',cpp:'#include<bits/stdc++.h>\nusing namespace std;\nint main(){int n,x;cin>>n>>x;vector<int>c(n);for(auto&v:c)cin>>v;vector<int>dp(x+1,(int)1e9);dp[0]=0;for(int i=1;i<=x;i++)for(int coin:c)if(coin<=i&&dp[i-coin]+1<dp[i])dp[i]=dp[i-coin]+1;cout<<(dp[x]>=(int)1e9?-1:dp[x])<<endl;}',python:'n,x=map(int,input().split())\nc=list(map(int,input().split()))\ndp=[float("inf")]*(x+1);dp[0]=0\nfor i in range(1,x+1):\n    for coin in c:\n        if coin<=i and dp[i-coin]+1<dp[i]:dp[i]=dp[i-coin]+1\nprint(-1 if dp[x]==float("inf") else dp[x])',java:'import java.util.*;\npublic class Main{\n    public static void main(String[]a){\n        Scanner sc=new Scanner(System.in);int n=sc.nextInt(),x=sc.nextInt();\n        int[]c=new int[n];for(int i=0;i<n;i++)c[i]=sc.nextInt();\n        int[]dp=new int[x+1];Arrays.fill(dp,Integer.MAX_VALUE/2);dp[0]=0;\n        for(int i=1;i<=x;i++)for(int coin:c)if(coin<=i&&dp[i-coin]+1<dp[i])dp[i]=dp[i-coin]+1;\n        System.out.println(dp[x]>=Integer.MAX_VALUE/2?-1:dp[x]);\n    }\n}'}},
+  {id:'pex_07',year:0,num:0,title:'グラフ連結判定',points:5,diff:3,cat:'graph',tags:['Union-Find'],desc:'N頂点M辺の無向グラフで2頂点u,vが連結かQ個のクエリに答えよ。',inputDesc:'1行目にN,M。続くM行にa,b。1行にQ。続くQ行にu,v。',outputDesc:'各クエリに"Yes"/"No"。',examples:[{input:'4 3\n1 2\n2 3\n3 4\n2\n1 4\n1 3',output:'Yes\nYes'}],hints:['Union-FindのfindとuniteをO(1)で実装'],template:{c:'#include <stdio.h>\nint p[100005];\nint find(int x){return p[x]==x?x:p[x]=find(p[x]);}\nvoid unite(int a,int b){p[find(a)]=find(b);}\nint main(){\n    int n,m;scanf("%d %d",&n,&m);\n    for(int i=1;i<=n;i++)p[i]=i;\n    for(int i=0;i<m;i++){int a,b;scanf("%d %d",&a,&b);unite(a,b);}\n    int q;scanf("%d",&q);\n    while(q--){int u,v;scanf("%d %d",&u,&v);printf(find(u)==find(v)?"Yes\\n":"No\\n");}\n    return 0;\n}',cpp:'#include<bits/stdc++.h>\nusing namespace std;\nint p[100005];\nint f(int x){return p[x]==x?x:p[x]=f(p[x]);}\nint main(){int n,m;cin>>n>>m;iota(p,p+n+1,0);while(m--){int a,b;cin>>a>>b;p[f(a)]=f(b);}int q;cin>>q;while(q--){int u,v;cin>>u>>v;cout<<(f(u)==f(v)?"Yes":"No")<<endl;}}',python:'import sys;input=sys.stdin.readline\nn,m=map(int,input().split())\np=list(range(n+1))\ndef find(x):\n    while p[x]!=x:p[x]=p[p[x]];x=p[x]\n    return x\nfor _ in range(m):a,b=map(int,input().split());p[find(a)]=find(b)\nq=int(input())\nfor _ in range(q):u,v=map(int,input().split());print("Yes"if find(u)==find(v)else"No")',java:'import java.util.*;\npublic class Main{\n    static int[]p;\n    static int f(int x){return p[x]==x?x:(p[x]=f(p[x]));}\n    public static void main(String[]a){\n        Scanner sc=new Scanner(System.in);int n=sc.nextInt(),m=sc.nextInt();\n        p=new int[n+1];for(int i=0;i<=n;i++)p[i]=i;\n        for(int i=0;i<m;i++){int x=sc.nextInt(),y=sc.nextInt();p[f(x)]=f(y);}\n        int q=sc.nextInt();\n        while(q-->0){int u=sc.nextInt(),v=sc.nextInt();System.out.println(f(u)==f(v)?"Yes":"No");}\n    }\n}'}},
+  {id:'p2025_4',year:2025,num:4,title:'超高速通信',points:4,diff:4,cat:'graph',tags:['全ペア判定'],desc:'公民館iからjへの通信はxi-xj≥yi-yj のときのみ可能。全館へ送信できる館を列挙せよ。',inputDesc:'1行目にN。続くN行にxi, yi。',outputDesc:'1行目に台数。2行目以降に番号を昇順。',examples:[{input:'3\n5 -2\n7 -3\n4 -6',output:'2\n2\n3'}],hints:['全ペア(i,j)についてxi-xj≥yi-yjを確認'],template:{c:'#include <stdio.h>\nint main(){\n    int n;scanf("%d",&n);\n    int x[1000],y[1000];\n    for(int i=0;i<n;i++)scanf("%d %d",&x[i],&y[i]);\n    int cnt=0,ans[1000];\n    for(int i=0;i<n;i++){\n        int ok=1;\n        for(int j=0;j<n;j++){if(i==j)continue;if(x[i]-x[j]<y[i]-y[j]){ok=0;break;}}\n        if(ok)ans[cnt++]=i+1;\n    }\n    printf("%d\\n",cnt);\n    for(int i=0;i<cnt;i++)printf("%d\\n",ans[i]);\n    return 0;\n}',cpp:'#include<bits/stdc++.h>\nusing namespace std;\nint main(){int n;cin>>n;vector<int>x(n),y(n);for(int i=0;i<n;i++)cin>>x[i]>>y[i];vector<int>ans;for(int i=0;i<n;i++){bool ok=true;for(int j=0;j<n;j++)if(i!=j&&x[i]-x[j]<y[i]-y[j]){ok=false;break;}if(ok)ans.push_back(i+1);}cout<<ans.size()<<endl;for(int v:ans)cout<<v<<endl;}',python:'n=int(input())\nxy=[list(map(int,input().split()))for _ in range(n)]\nans=[i+1 for i in range(n) if all(xy[i][0]-xy[j][0]>=xy[i][1]-xy[j][1]for j in range(n)if i!=j)]\nprint(len(ans))\nfor v in ans:print(v)',java:'import java.util.*;\npublic class Main{\n    public static void main(String[]a){\n        Scanner sc=new Scanner(System.in);int n=sc.nextInt();\n        int[]x=new int[n],y=new int[n];\n        for(int i=0;i<n;i++){x[i]=sc.nextInt();y[i]=sc.nextInt();}\n        List<Integer>ans=new ArrayList<>();\n        for(int i=0;i<n;i++){boolean ok=true;for(int j=0;j<n;j++)if(i!=j&&x[i]-x[j]<y[i]-y[j]){ok=false;break;}if(ok)ans.add(i+1);}\n        System.out.println(ans.size());for(int v:ans)System.out.println(v);\n    }\n}'}},
+  {id:'pex_08',year:0,num:0,title:'ダイクストラ法',points:8,diff:4,cat:'graph',tags:['最短経路'],desc:'N頂点M辺の重み付きグラフで頂点1から各頂点への最短距離を求めよ。',inputDesc:'1行目にN,M。続くM行にa,b,c。',outputDesc:'各頂点への最短距離（不能→-1）。',examples:[{input:'4 5\n1 2 2\n1 3 5\n2 3 1\n2 4 4\n3 4 2',output:'0\n2\n3\n5'}],hints:['dist[]をINFで初期化しdist[1]=0','未確定で最小distのvを選び隣接を緩和'],template:{c:'#include <stdio.h>\n#define MX 1005\ntypedef long long ll;\nll dist[MX],w[MX][MX];int vis[MX],adj[MX][MX],n,m;\nvoid dijk(){\n    for(int i=1;i<=n;i++){dist[i]=(ll)1e18;vis[i]=0;}dist[1]=0;\n    for(int it=0;it<n;it++){\n        int v=-1;\n        for(int i=1;i<=n;i++)if(!vis[i]&&(v==-1||dist[i]<dist[v]))v=i;\n        if(v==-1||dist[v]==(ll)1e18)break;vis[v]=1;\n        for(int u=1;u<=n;u++)if(adj[v][u]&&dist[v]+w[v][u]<dist[u])dist[u]=dist[v]+w[v][u];\n    }\n}\nint main(){\n    scanf("%d %d",&n,&m);\n    for(int i=0;i<m;i++){int a,b;ll c;scanf("%d %d %lld",&a,&b,&c);adj[a][b]=adj[b][a]=1;w[a][b]=w[b][a]=c;}\n    dijk();\n    for(int i=1;i<=n;i++)printf("%lld\\n",dist[i]==(ll)1e18?-1:dist[i]);\n    return 0;\n}',cpp:'#include<bits/stdc++.h>\nusing namespace std;\ntypedef pair<long long,int>P;\nconst long long INF=1e18;\nint main(){int n,m;cin>>n>>m;vector<vector<pair<int,long long>>>g(n+1);while(m--){int a,b;long long c;cin>>a>>b>>c;g[a].push_back({b,c});g[b].push_back({a,c});}vector<long long>d(n+1,INF);priority_queue<P,vector<P>,greater<P>>pq;d[1]=0;pq.push({0,1});while(!pq.empty()){auto[dd,v]=pq.top();pq.pop();if(dd>d[v])continue;for(auto[u,c]:g[v])if(d[v]+c<d[u]){d[u]=d[v]+c;pq.push({d[u],u});}}for(int i=1;i<=n;i++)cout<<(d[i]==INF?-1:d[i])<<endl;}',python:'import heapq\nfrom math import inf\nn,m=map(int,input().split())\ng=[[]for _ in range(n+1)]\nfor _ in range(m):\n    a,b,c=map(int,input().split())\n    g[a].append((c,b));g[b].append((c,a))\nd=[inf]*(n+1);d[1]=0\npq=[(0,1)]\nwhile pq:\n    dd,v=heapq.heappop(pq)\n    if dd>d[v]:continue\n    for c,u in g[v]:\n        if d[v]+c<d[u]:d[u]=d[v]+c;heapq.heappush(pq,(d[u],u))\nfor i in range(1,n+1):print(-1 if d[i]==inf else d[i])',java:'import java.util.*;\npublic class Main{\n    public static void main(String[]a){\n        Scanner sc=new Scanner(System.in);int n=sc.nextInt(),m=sc.nextInt();\n        List<List<long[]>>g=new ArrayList<>();for(int i=0;i<=n;i++)g.add(new ArrayList<>());\n        for(int i=0;i<m;i++){int x=sc.nextInt(),y=sc.nextInt();long c=sc.nextLong();g.get(x).add(new long[]{y,c});g.get(y).add(new long[]{x,c});}\n        long[]d=new long[n+1];Arrays.fill(d,Long.MAX_VALUE/2);d[1]=0;\n        PriorityQueue<long[]>pq=new PriorityQueue<>(Comparator.comparingLong(x->x[0]));\n        pq.offer(new long[]{0,1});\n        while(!pq.isEmpty()){long[]p=pq.poll();int v=(int)p[1];if(p[0]>d[v])continue;for(long[]e:g.get(v))if(d[v]+e[1]<d[(int)e[0]]){d[(int)e[0]]=d[v]+e[1];pq.offer(new long[]{d[(int)e[0]],e[0]});}}\n        for(int i=1;i<=n;i++)System.out.println(d[i]==Long.MAX_VALUE/2?-1:d[i]);\n    }\n}'}}
+];
 
-<!-- CONFETTI CANVAS -->
-<canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+const CURRICULUM = [
+  {level:1,title:'白帯修行',subtitle:'入出力・基礎計算・条件分岐',icon:'🌱',cls:'l1',lessons:[
+    {id:'l01',title:'C言語の基本構造',icon:'📝',desc:'printf, scanf, main関数の使い方',xp:50,time:'15分',content:{
+      sections:[
+        {title:'C言語とは',body:'C言語はパソコン甲子園で最も多く使われる言語の一つ。高速・強力な言語です。'},
+        {title:'Hello World',code:'#include <stdio.h>\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}',lang:'c'},
+        {title:'変数と四則演算',code:'#include <stdio.h>\nint main() {\n    int a=10, b=3;\n    printf("%d\\n", a+b);  /* 13 */\n    printf("%d\\n", a/b);  /* 3 (整数除算) */\n    printf("%d\\n", a%b);  /* 1 (余り) */\n    return 0;\n}',lang:'c'},
+        {title:'scanfで入力',body:'&をつけるのを忘れずに！',code:'int x, y;\nscanf("%d %d", &x, &y);\nprintf("%d\\n", x + y);',lang:'c'}
+      ],
+      quiz:{q:'5 / 2 の結果は？（C言語の整数除算）',opts:['2.5','2','3','2.0'],ans:1,exp:'整数同士の除算は小数点以下を切り捨て。5÷2=2。'}
+    }},
+    {id:'l02',title:'条件分岐 if/else',icon:'🔀',desc:'場合分けのプログラムを書く',xp:60,time:'20分',content:{
+      sections:[
+        {title:'if文の基本',code:'int x;\nscanf("%d",&x);\nif(x>0){\n    printf("正\\n");\n} else if(x<0){\n    printf("負\\n");\n} else {\n    printf("ゼロ\\n");\n}',lang:'c'},
+        {title:'比較演算子',body:'== 等しい / != 等しくない / < より小さい / <= 以下 / > より大きい / >= 以上\n&& 両方true / || どちらかtrue'},
+        {title:'実践：花火問題（2025年第2問）',code:'int lo=c-r, hi=c+r;\nif(lo<=h&&h<=hi) printf("side\\n");\nelse if(lo>h)    printf("up\\n");\nelse             printf("down\\n");',lang:'c'}
+      ],
+      quiz:{q:'x=5のとき if(x>3 && x<10) は？',opts:['true（実行される）','false','エラー','不定'],ans:0,exp:'5>3=true、5<10=true。&&はどちらもtrueのときtrue。'}
+    }},
+    {id:'l03',title:'for/whileループ',icon:'🔁',desc:'繰り返し処理をマスター',xp:70,time:'25分',content:{
+      sections:[
+        {title:'forループ',code:'int sum=0;\nfor(int i=1; i<=10; i++){\n    sum += i;\n}\nprintf("%d\\n", sum); /* 55 */',lang:'c'},
+        {title:'whileループ',code:'/* 菌の祖先問題 */\nint b;\nscanf("%d",&b);\nwhile(b>=1){\n    printf("%d\\n",b);\n    b = b/2;\n}',lang:'c'},
+        {title:'ネストしたループ',code:'for(int i=0;i<n;i++){\n    for(int j=0;j<m;j++){\n        printf("%d ",a[i][j]);\n    }\n    printf("\\n");\n}',lang:'c'}
+      ],
+      quiz:{q:'for(int i=0; i<5; i++) の繰り返し回数は？',opts:['4回','5回','6回','0回'],ans:1,exp:'i=0,1,2,3,4の5回。i<5なのでi=5でループ終了。'}
+    }},
+    {id:'l04',title:'配列の使い方',icon:'📦',desc:'N個のデータをまとめて管理',xp:80,time:'30分',content:{
+      sections:[
+        {title:'1次元配列',code:'int n;\nscanf("%d",&n);\nint a[100000];\nfor(int i=0;i<n;i++) scanf("%d",&a[i]);\nint mx=a[0];\nfor(int i=1;i<n;i++)\n    if(a[i]>mx) mx=a[i];\nprintf("%d\\n",mx);',lang:'c'},
+        {title:'2次元配列',code:'int a[100][100];\nfor(int i=0;i<h;i++)\n    for(int j=0;j<w;j++)\n        scanf("%d",&a[i][j]);',lang:'c'}
+      ],
+      quiz:{q:'int a[5]; の有効インデックスは？',opts:['0〜5','0〜4','1〜5','1〜4'],ans:1,exp:'C配列は0始まり。a[0]〜a[4]の5要素。a[5]は範囲外！'}
+    }},
+    {id:'l05',title:'剰余と数の性質',icon:'🔢',desc:'余り演算子%の活用法',xp:60,time:'20分',content:{
+      sections:[
+        {title:'%演算子（余り）',body:'a%b でaをbで割った余り。偶奇判定・循環処理に必須。',code:'printf("%d\\n",10%3);  /* 1 */\nprintf("%d\\n",7%2);   /* 1 (奇数) */\nprintf("%d\\n",8%2);   /* 0 (偶数) */',lang:'c'},
+        {title:'long longで大きな数',body:'intの最大値は約21億。それ以上はlong longを使う。',code:'long long big=1000000000LL*1000000000LL;\nprintf("%lld\\n",big); /* %lldを使う */',lang:'c'}
+      ],
+      quiz:{q:'17 % 5 の値は？',opts:['2','3','1','0'],ans:0,exp:'17=5×3+2。余りは2。'}
+    }},
+    {id:'l06',title:'関数の定義と呼び出し',icon:'⚙️',desc:'処理を関数にまとめて再利用',xp:70,time:'25分',content:{
+      sections:[
+        {title:'関数とは',code:'int add(int a, int b){\n    return a + b;\n}\nint main(){\n    printf("%d\\n", add(3,4));   /* 7  */\n    return 0;\n}',lang:'c'},
+        {title:'再帰関数',code:'long long fact(int n){\n    if(n<=1) return 1;\n    return n * fact(n-1);\n}\n/* fact(5)=120 */',lang:'c'},
+        {title:'素数判定関数',code:'#include <stdbool.h>\nbool isPrime(int n){\n    if(n<2) return false;\n    for(int i=2;(long long)i*i<=n;i++)\n        if(n%i==0) return false;\n    return true;\n}',lang:'c'}
+      ],
+      quiz:{q:'再帰関数に必要なのは？',opts:['ループ','ベースケース（終了条件）','配列','ポインタ'],ans:1,exp:'再帰は必ずベースケース（終了条件）が必要。ないと無限ループになる。'}
+    }},
+    {id:'l07',title:'文字列処理',icon:'🔤',desc:'文字列の操作・比較・変換',xp:75,time:'25分',content:{
+      sections:[
+        {title:'文字列の基本',code:'char s[105];\nscanf("%s",s); /* &は不要！ */\nint len=strlen(s);\nprintf("長さ: %d\\n",len);',lang:'c'},
+        {title:'文字の比較・操作',body:'文字は内部で数値（ASCIIコード）として扱われる。',code:"char c='A';\nprintf(\"%d\\n\",c);       /* 65 */\nchar d='7';\nint num=d-'0';           /* 7  */",lang:'c'},
+        {title:'数値→文字列変換',code:'char buf[30];\nint n=12345;\nsprintf(buf,"%d",n);\nprintf("文字数:%d\\n",(int)strlen(buf)); /* 5 */',lang:'c'}
+      ],
+      quiz:{q:"文字 '5' をint の 5 に変換するには？",opts:["int('5')","'5'-'0'","'5'-5","atoi('5')"],ans:1,exp:"'5'-'0'=53-48=5。ASCII文字の数字はこう変換する。"}
+    }},
+    {id:'l08',title:'デバッグ入門',icon:'🐛',desc:'バグを見つけて直す力を身につける',xp:60,time:'20分',content:{
+      sections:[
+        {title:'よくあるバグ①：オーバーフロー',code:'/* NG */\nint a=1000000, b=1000000;\nprintf("%d\\n",a*b);  /* 負の数！ */\n/* OK */\nlong long ok=(long long)a*b;\nprintf("%lld\\n",ok);',lang:'c'},
+        {title:'よくあるバグ②：配列範囲外',code:'int a[5];\na[5]=10;  /* NG！有効はa[0]〜a[4] */',lang:'c'},
+        {title:'よくあるバグ③：整数除算',code:'printf("%d\\n", 7/2);    /* 3（切り捨て！） */\nprintf("%f\\n", 7.0/2);  /* 3.5（OK） */',lang:'c'}
+      ],
+      quiz:{q:'int a=100000; int b=100000; a*b の結果は？',opts:['10000000000','1410065408（オーバーフロー）','0','100000'],ans:1,exp:'intは約21億まで。100000×100000=10^10はオーバーフロー。long longを使おう。'}
+    }}
+  ]},
+  {level:2,title:'青帯修行',subtitle:'ソート・探索・貪欲法・グラフ基礎',icon:'⚔️',cls:'l2',lessons:[
+    {id:'l09',title:'ソートアルゴリズム',icon:'📊',desc:'バブルソートとqsortをマスター',xp:100,time:'35分',content:{
+      sections:[
+        {title:'なぜソートが重要？',body:'並び替えることで最大・最小の取得、二分探索、貪欲法など様々な問題が解きやすくなります。'},
+        {title:'バブルソート O(N²)',code:'void bubbleSort(int a[], int n){\n    for(int i=0;i<n-1;i++)\n        for(int j=0;j<n-1-i;j++)\n            if(a[j]>a[j+1]){\n                int tmp=a[j];\n                a[j]=a[j+1];\n                a[j+1]=tmp;\n            }\n}',lang:'c'},
+        {title:'qsort（標準ライブラリ）O(N log N)',code:'#include <stdlib.h>\nint cmp(const void* a, const void* b){\n    return *(int*)a - *(int*)b; /* 昇順 */\n}\nqsort(a, n, sizeof(int), cmp);',lang:'c'}
+      ],
+      quiz:{q:'qsortの計算量は？',opts:['O(N)','O(N log N)','O(N²)','O(2^N)'],ans:1,exp:'qsortはO(N log N)。バブルソートはO(N²)で遅い。'}
+    }},
+    {id:'l10',title:'貪欲法（Greedy）',icon:'🎯',desc:'局所最適から大域最適を導く',xp:120,time:'40分',content:{
+      sections:[
+        {title:'貪欲法とは',body:'各ステップで「その瞬間の最良選択」をする手法。局所最適→大域最適が成立する場合のみ有効。'},
+        {title:'コイン問題（貪欲）',code:'int coins[]={500,100,50,10,5,1};\nint n=1234, count=0;\nfor(int i=0;i<6;i++){\n    count+=n/coins[i];\n    n%=coins[i];\n}',lang:'c'},
+        {title:'2025年第5問：二つの数列',body:'差d[i]=a[i]-b[i]を昇順ソートし、負のものからK個を置換すると最大化できる。'}
+      ],
+      quiz:{q:'貪欲法が成立しない場合は？',opts:['データが大きい','負の重みがある','局所最適≠大域最適','入力がランダム'],ans:2,exp:'局所的に最良でも全体最適にならない場合は使えない。そのときはDPや全探索が必要。'}
+    }},
+    {id:'l11',title:'幅優先探索（BFS）',icon:'🌐',desc:'キューを使ったグラフ探索',xp:150,time:'50分',content:{
+      sections:[
+        {title:'BFSとは',body:'始点から「近い順」に探索する方法。キュー（FIFO）を使います。辺の重みが全て1のとき最短経路を求められる。'},
+        {title:'BFS実装',code:'int dist[105],queue[10005],head=0,tail=0;\nmemset(dist,-1,sizeof(dist));\ndist[start]=0;\nqueue[tail++]=start;\nwhile(head<tail){\n    int v=queue[head++];\n    for(int u=1;u<=n;u++){\n        if(adj[v][u]&&dist[u]==-1){\n            dist[u]=dist[v]+1;\n            queue[tail++]=u;\n        }\n    }\n}',lang:'c'},
+        {title:'グリッドBFS',code:'int dx[]={0,0,1,-1},dy[]={1,-1,0,0};\n/* 4方向に探索 */\nfor(int d=0;d<4;d++){\n    int nx=x+dx[d],ny=y+dy[d];\n    if(0<=nx&&nx<H&&0<=ny&&ny<W\n       &&!vis[nx][ny]&&grid[nx][ny]==\'.\'){\n        vis[nx][ny]=1; /* キューに追加 */\n    }\n}',lang:'c'}
+      ],
+      quiz:{q:'BFSで使うデータ構造は？',opts:['スタック(LIFO)','キュー(FIFO)','優先度付きキュー','配列'],ans:1,exp:'BFSはキュー（先入れ先出し）を使い近い順に探索。DFSはスタック（再帰）。'}
+    }},
+    {id:'l12',title:'深さ優先探索（DFS）',icon:'🔍',desc:'再帰・バックトラックを使った探索',xp:130,time:'45分',content:{
+      sections:[
+        {title:'DFSとは',body:'深い方向に進みながら探索し、行き詰まったら戻る（バックトラック）方法。再帰で実装するのが自然。'},
+        {title:'DFS実装',code:'int visited[105]={0};\nvoid dfs(int v){\n    visited[v]=1;\n    for(int u=1;u<=n;u++){\n        if(adj[v][u]&&!visited[u]){\n            dfs(u);\n        }\n    }\n}\ndfs(1);',lang:'c'},
+        {title:'全探索への応用',code:'/* N個を選ぶか選ばないか全パターン */\nvoid solve(int idx, int current){\n    if(idx==n){ /* 評価 */ return; }\n    solve(idx+1, current+a[idx]); /* 選ぶ */\n    solve(idx+1, current);        /* 選ばない */\n}',lang:'c'}
+      ],
+      quiz:{q:'DFSとBFSの違いは？',opts:['DFSは速い、BFSは遅い','DFSは深く進む、BFSは近い順','DFSはキュー、BFSはスタック','違いはない'],ans:1,exp:'DFS=深さ優先（スタック/再帰）でどんどん奥へ。BFS=幅優先（キュー）で近い順に探索。'}
+    }},
+    {id:'l13',title:'Union-Find',icon:'🔗',desc:'素集合を高速に管理するデータ構造',xp:140,time:'40分',content:{
+      sections:[
+        {title:'Union-Findとは',body:'複数の要素をグループに分け、2つの要素が同じグループかどうか高速に判定するデータ構造。グラフの連結判定に最適。'},
+        {title:'Union-Find実装',code:'int parent[100005];\nint find(int x){\n    if(parent[x]==x) return x;\n    return parent[x]=find(parent[x]); /* 経路圧縮 */\n}\nvoid unite(int a, int b){\n    parent[find(a)]=find(b);\n}\n/* 初期化 */\nfor(int i=1;i<=n;i++) parent[i]=i;',lang:'c'}
+      ],
+      quiz:{q:'Union-FindのfindがほぼO(1)になる理由は？',opts:['配列だから','経路圧縮で木を平坦化するから','常にO(N)かかる','hashを使うから'],ans:1,exp:'経路圧縮により木の深さがほぼ1になりほぼO(1)で動く。'}
+    }},
+    {id:'l14',title:'二分探索',icon:'🔎',desc:'ソート済みデータを高速に探索',xp:110,time:'35分',content:{
+      sections:[
+        {title:'二分探索とは',body:'ソート済み配列で目標値を探すとき、毎回範囲を半分に絞る手法。O(log N)で非常に高速。N=10^9でも約30回で終わる！'},
+        {title:'二分探索実装',code:'int lo=0, hi=n-1;\nwhile(lo<=hi){\n    int mid=(lo+hi)/2;\n    if(a[mid]==target) return mid;   /* 発見 */\n    else if(a[mid]<target) lo=mid+1;\n    else hi=mid-1;\n}\nreturn -1; /* 見つからない */',lang:'c'}
+      ],
+      quiz:{q:'N=10^9のとき二分探索の最大ステップ数は？',opts:['100','30','1000','10億'],ans:1,exp:'log₂(10^9)≈30。10億要素でも30回で探索完了！'}
+    }},
+    {id:'l15',title:'qsortとcomparator',icon:'⚖️',desc:'複雑なソート条件を指定する方法',xp:90,time:'30分',content:{
+      sections:[
+        {title:'比較関数の書き方',body:'qsortの比較関数は「aがbより前なら負、後なら正、同じなら0を返す」。',code:'int cmpAsc(const void*a,const void*b){\n    return *(int*)a-*(int*)b; /* 昇順 */\n}\nint cmpDesc(const void*a,const void*b){\n    return *(int*)b-*(int*)a; /* 降順 */\n}',lang:'c'},
+        {title:'構造体の多キーソート',code:'typedef struct{int x,y;}P;\nint cmpP(const void*a,const void*b){\n    P*pa=(P*)a,*pb=(P*)b;\n    if(pa->x!=pb->x) return pa->x-pb->x;\n    return pb->y-pa->y;\n}',lang:'c'}
+      ],
+      quiz:{q:'昇順ソートの比較関数の返り値は？',opts:['aがbより大きいとき負','aがbより小さいとき負','常に0','aがbより小さいとき正'],ans:1,exp:'a<bのとき負→aが前。a>bのとき正→bが前。これが昇順ソート。'}
+    }},
+    {id:'l16',title:'ポインタと動的メモリ',icon:'🧠',desc:'C言語の核心・メモリを理解する',xp:120,time:'40分',content:{
+      sections:[
+        {title:'ポインタとは',body:'変数のアドレス（場所）を格納する変数。&でアドレスを取得、*で中身を参照。',code:'int x=10;\nint *p=&x;\nprintf("%d\\n",*p); /* 10 */\n*p=20;\nprintf("%d\\n",x);  /* 20 */',lang:'c'},
+        {title:'malloc（動的メモリ確保）',code:'#include <stdlib.h>\nint n=100000;\nint*a=(int*)malloc(n*sizeof(int));\n/* 使用後は必ず解放 */\nfree(a);',lang:'c'}
+      ],
+      quiz:{q:'scanfで &x と書く理由は？',opts:['おまじない','xのアドレスを渡して直接書き込むため','文字列だから','エラー回避'],ans:1,exp:'scanfは「変数のアドレスを受け取り、そこに値を書き込む」関数。ポインタを渡す必要がある。'}
+    }}
+  ]},
+  {level:3,title:'茶帯修行',subtitle:'動的計画法・数論・高度なアルゴリズム',icon:'🔥',cls:'l3',lessons:[
+    {id:'l17',title:'動的計画法入門',icon:'🧩',desc:'メモ化で重複計算を排除',xp:200,time:'60分',content:{
+      sections:[
+        {title:'DPとは',body:'問題を小さな部分問題に分割し、その結果を記憶（メモ化）しながら解く手法。同じ計算を繰り返さないことで高速化。'},
+        {title:'フィボナッチ（再帰 vs DP）',code:'/* 再帰版：O(2^N)で遅い */\nlong long fib_slow(int n){\n    if(n<=1)return n;\n    return fib_slow(n-1)+fib_slow(n-2);\n}\n/* DP版：O(N)で速い */\nlong long dp[100];\ndp[0]=0; dp[1]=1;\nfor(int i=2;i<100;i++)\n    dp[i]=dp[i-1]+dp[i-2];',lang:'c'},
+        {title:'コイン問題DP',code:'/* dp[i]=i円を作る最少コイン枚数 */\nfor(int i=1;i<=X;i++) dp[i]=99999;\ndp[0]=0;\nfor(int i=1;i<=X;i++)\n    for(int j=0;j<n;j++)\n        if(coin[j]<=i&&dp[i-coin[j]]+1<dp[i])\n            dp[i]=dp[i-coin[j]]+1;',lang:'c'}
+      ],
+      quiz:{q:'DPの本質は？',opts:['全探索の高速版','部分問題の結果を再利用する','常にO(N)になる','メモリを使わない'],ans:1,exp:'DPは「同じ部分問題を何度も解かない」ことで効率化。メモ化が核心。'}
+    }},
+    {id:'l18',title:'ナップサック問題',icon:'🎒',desc:'0-1ナップサックDPを完全マスター',xp:220,time:'65分',content:{
+      sections:[
+        {title:'ナップサック問題とは',body:'N個のアイテム（重さw[i]、価値v[i]）と容量Wのナップサック。価値の和を最大化せよ。DPの王道問題！'},
+        {title:'1次元DP（逆順ループ）',code:'long long dp[10001]={0};\nfor(int i=0;i<n;i++){\n    /* 逆順！同じアイテムを2度使わないため */\n    for(int j=W;j>=w[i];j--){\n        long long c=dp[j-w[i]]+v[i];\n        if(c>dp[j]) dp[j]=c;\n    }\n}\nprintf("%lld\\n",dp[W]);',lang:'c'}
+      ],
+      quiz:{q:'ナップサックDPを逆順にループする理由は？',opts:['速いから','アイテムを1度しか使わないため','小さい方が計算しやすいから','ソートが必要だから'],ans:1,exp:'逆順にすることで「アイテムiを使う前の状態」から更新できる。'}
+    }},
+    {id:'l19',title:'LCS（最長共通部分列）',icon:'🧬',desc:'2つの文字列の類似度を測るDP',xp:200,time:'55分',content:{
+      sections:[
+        {title:'LCSとは',body:'2つの文字列S, Tから共通して得られる最長の文字列の長さ。遺伝子比較などに応用。'},
+        {title:'LCS DP',code:'/* dp[i][j]=S[0..i-1]とT[0..j-1]のLCS長 */\nfor(int i=1;i<=n;i++)\n    for(int j=1;j<=m;j++){\n        if(S[i-1]==T[j-1])\n            dp[i][j]=dp[i-1][j-1]+1;\n        else\n            dp[i][j]=dp[i-1][j]>dp[i][j-1]?dp[i-1][j]:dp[i][j-1];\n    }',lang:'c'}
+      ],
+      quiz:{q:'S[i-1]==T[j-1] のとき dp[i][j] = ?',opts:['dp[i-1][j]','dp[i][j-1]','dp[i-1][j-1]+1','0'],ans:2,exp:'一致した場合、1つ前の両文字列のLCSに+1できる。'}
+    }},
+    {id:'l20',title:'素数・数論',icon:'🔢',desc:'GCD・素数・素因数分解を極める',xp:180,time:'50分',content:{
+      sections:[
+        {title:'ユークリッドの互除法',code:'long long gcd(long long a,long long b){\n    return b==0?a:gcd(b,a%b);\n}\nlong long lcm(long long a,long long b){\n    return a/gcd(a,b)*b;\n}',lang:'c'},
+        {title:'エラトステネスの篩',code:'#define MX 1000005\nbool sieve[MX];\nvoid buildSieve(){\n    memset(sieve,true,sizeof(sieve));\n    sieve[0]=sieve[1]=false;\n    for(int i=2;(long long)i*i<MX;i++)\n        if(sieve[i])\n            for(int j=i*i;j<MX;j+=i)\n                sieve[j]=false;\n}',lang:'c'}
+      ],
+      quiz:{q:'gcd(12, 8) は？',opts:['2','4','6','24'],ans:1,exp:'gcd(12,8)=gcd(8,4)=gcd(4,0)=4。ユークリッドの互除法。'}
+    }},
+    {id:'l21',title:'累積和',icon:'∑',desc:'区間の和をO(1)で求める技法',xp:160,time:'40分',content:{
+      sections:[
+        {title:'累積和とは',body:'事前に各位置までの和を計算しておくことで、区間[l,r]の和をO(1)で求められる。',code:'int a[]={3,1,4,1,5,9};int n=6;\nlong long prefix[7]={0};\nfor(int i=0;i<n;i++)\n    prefix[i+1]=prefix[i]+a[i];\n/* [l,r]の和=prefix[r+1]-prefix[l] */',lang:'c'}
+      ],
+      quiz:{q:'a=[1,2,3,4,5]でa[1..3]の和（0-indexed）を累積和で求めると？',opts:['prefix[4]-prefix[1]','prefix[3]-prefix[0]','prefix[3]-prefix[1]','prefix[4]-prefix[0]'],ans:0,exp:'a[1]+a[2]+a[3]=2+3+4=9。prefix[4]-prefix[1]=(1+2+3+4)-(1)=9。'}
+    }},
+    {id:'l22',title:'ダイクストラ法',icon:'🗺️',desc:'重み付きグラフの最短経路',xp:300,time:'70分',content:{
+      sections:[
+        {title:'ダイクストラ法とは',body:'辺に重みがあるグラフで最短経路を求めるアルゴリズム。2025年第7問「レンタカー」などで必要！'},
+        {title:'基本実装 O(V²)',code:'long long dist[MX];int vis[MX];\nvoid dijkstra(int s){\n    for(int i=1;i<=n;i++){dist[i]=(ll)1e18;vis[i]=0;}\n    dist[s]=0;\n    for(int it=0;it<n;it++){\n        int v=-1;\n        for(int i=1;i<=n;i++)\n            if(!vis[i]&&(v==-1||dist[i]<dist[v]))v=i;\n        if(v==-1)break;vis[v]=1;\n        for(int u=1;u<=n;u++)\n            if(adj[v][u]&&dist[v]+w[v][u]<dist[u])\n                dist[u]=dist[v]+w[v][u];\n    }\n}',lang:'c'}
+      ],
+      quiz:{q:'ダイクストラ法が使えないのは？',opts:['グラフが非連結','負の辺がある','有向グラフ','ノードが多い'],ans:1,exp:'負の辺があるとダイクストラは誤答する。そのときはベルマン-フォード法を使う。'}
+    }},
+    {id:'l23',title:'LIS（最長増加部分列）',icon:'📈',desc:'二分探索+DPでO(N log N)を実現',xp:250,time:'60分',content:{
+      sections:[
+        {title:'LISとは',body:'数列の中から要素を（順序を保って）選び、増加する列を作るとき、最長のものの長さを求める問題。'},
+        {title:'O(N log N) 実装',code:'int dp[MX],sz=0;\nfor(int i=0;i<n;i++){\n    int lo=0,hi=sz;\n    while(lo<hi){\n        int mid=(lo+hi)/2;\n        if(dp[mid]<a[i]) lo=mid+1;\n        else hi=mid;\n    }\n    dp[lo]=a[i];\n    if(lo==sz) sz++;\n}\nprintf("%d\\n",sz);',lang:'c'}
+      ],
+      quiz:{q:'[1,2,3,4,5] のLISの長さは？',opts:['1','3','5','4'],ans:2,exp:'[1,2,3,4,5]は完全に増加しているのでLISは長さ5。'}
+    }},
+    {id:'l24',title:'計算量とO記法',icon:'⏱️',desc:'アルゴリズムの効率を数学で表す',xp:150,time:'35分',content:{
+      sections:[
+        {title:'O記法とは',body:'入力サイズNに対してアルゴリズムが必要とする計算ステップ数の「増え方」を表す記法。\n\nO(1) < O(log N) < O(√N) < O(N) < O(N log N) < O(N²) < O(2^N)'},
+        {title:'N=10^5での目安',body:'• O(N log N) → 約170万回 ✅\n• O(N²) → 100億回 ❌（TLE）\n• O(2^N) → 宇宙の年齢でも終わらない ❌'}
+      ],
+      quiz:{q:'N=10^5のとき O(N²)アルゴリズムは何ステップ？',opts:['10万','1000万','100億','1兆'],ans:2,exp:'(10^5)²=10^10=100億。1秒に10^8〜10^9回計算できるのでTLEになる。'}
+    }}
+  ]},
+  {level:4,title:'黒帯修行',subtitle:'上級アルゴリズム・本番対策',icon:'🏆',cls:'l4',lessons:[
+    {id:'l25',title:'セグメント木',icon:'🌲',desc:'区間クエリをO(log N)で処理',xp:350,time:'80分',content:{
+      sections:[
+        {title:'セグメント木とは',body:'配列に対する区間の最大・最小・和などをO(log N)で求め、O(log N)で更新もできる木構造。'},
+        {title:'セグメント木（区間最大）',code:'#define MX (1<<17)\nint seg[2*MX];\nvoid update(int i, int val){\n    i+=MX; seg[i]=val;\n    for(i>>=1;i>=1;i>>=1)\n        seg[i]=seg[2*i]>seg[2*i+1]?seg[2*i]:seg[2*i+1];\n}\nint query(int l, int r){\n    int res=0;\n    for(l+=MX,r+=MX;l<r;l>>=1,r>>=1){\n        if(l&1) res=res>seg[l]?res:seg[l++];\n        if(r&1) res=res>seg[--r]?res:seg[r];\n    }\n    return res;\n}',lang:'c'}
+      ],
+      quiz:{q:'セグメント木のquery/updateの計算量は？',opts:['O(N)','O(log N)','O(N log N)','O(1)'],ans:1,exp:'木の高さがlog Nなので、queryもupdateもO(log N)。'}
+    }},
+    {id:'l26',title:'最小全域木（MST）',icon:'🌉',desc:'クラスカル法・プリム法',xp:300,time:'75分',content:{
+      sections:[
+        {title:'MSTとは',body:'N頂点の重み付きグラフ全体を連結するN-1本の辺を選び、重みの総和を最小化する問題。インフラ設計などに応用。'},
+        {title:'クラスカル法（Union-Find使用）',code:'/* 辺を重みの小さい順にソートして貪欲に選ぶ */\ntypedef struct{int u,v,w;}Edge;\nint cmpEdge(const void*a,const void*b){\n    return ((Edge*)a)->w-((Edge*)b)->w;\n}\nvoid kruskal(){\n    qsort(edges,m,sizeof(Edge),cmpEdge);\n    long long total=0;\n    for(int i=0;i<m;i++){\n        int u=edges[i].u,v=edges[i].v;\n        if(find(u)!=find(v)){\n            unite(u,v);\n            total+=edges[i].w;\n        }\n    }\n}',lang:'c'}
+      ],
+      quiz:{q:'クラスカル法で辺を選ぶ基準は？',opts:['頂点番号が小さい','重みが大きい','重みが小さく、かつサイクルを作らない','ランダム'],ans:2,exp:'重みの小さい辺から順に、サイクルを形成しないものを選んでいく（Union-Findで判定）。'}
+    }},
+    {id:'l27',title:'競技プログラミング本番対策',icon:'🏅',desc:'パソコン甲子園本番で勝つための戦略',xp:200,time:'45分',content:{
+      sections:[
+        {title:'問題を解く順序',body:'① まず全問題を読んで難易度を把握（5分）\n② 簡単な問題から確実に解いてスコアを積む\n③ 残り時間で難しい問題にチャレンジ\n④ 部分点狙いの戦略も重要'},
+        {title:'時間計算量の見極め',body:'N≤100 → O(N³)でOK\nN≤1000 → O(N²)でOK\nN≤10^5 → O(N log N)まで\nN≤10^6 → O(N)のみ'},
+        {title:'よくある罠',code:'/* 1.整数オーバーフロー */\nlong long ans=(long long)a*b;\n/* 2.配列サイズ不足 */\nint a[100001]; /* N+1以上を確保 */\n/* 3.未初期化 */\nlong long dp[1001]={0};\n/* 4.改行忘れ */\nprintf("%d\\n",ans);',lang:'c'}
+      ],
+      quiz:{q:'N=10^5のとき O(N²)アルゴリズムは何秒？（1秒=10^8演算）',opts:['0.1秒','1秒','100秒','10000秒'],ans:2,exp:'(10^5)²=10^10演算。10^8演算/秒なら100秒かかる。O(N log N)を使おう。'}
+    }},
+    {id:'l28',title:'ビット演算・bitDP',icon:'💾',desc:'2進数操作と集合を使うDP',xp:320,time:'75分',content:{
+      sections:[
+        {title:'ビット演算の基本',code:'int a=0b1010; /* 10 */\nint b=0b1100; /* 12 */\nprintf("%d\\n",a&b);  /* AND: 8  */\nprintf("%d\\n",a|b);  /* OR:  14 */\nprintf("%d\\n",a^b);  /* XOR: 6  */\nprintf("%d\\n",a<<1); /* 左シフト: 20 */',lang:'c'},
+        {title:'ビットで集合を表現',code:'int S=0;\nS|=(1<<2);        /* 要素2を追加 */\nbool has2=(S>>2)&1; /* 要素2が含まれるか */\nS&=~(1<<2);       /* 要素2を削除 */',lang:'c'}
+      ],
+      quiz:{q:'(1<<3) の値は？',opts:['3','6','8','16'],ans:2,exp:'1を左に3ビットシフト=1×2³=8。'}
+    }},
+    {id:'l29',title:'繰り返し二乗法',icon:'🧮',desc:'巨大な累乗を高速計算',xp:260,time:'50分',content:{
+      sections:[
+        {title:'なぜ必要？',body:'a^1000000007 mod m を求めるとき、単純なループでは無理。繰り返し二乗法でO(log n)で解ける。'},
+        {title:'実装',code:'long long power(long long a, long long n, long long m){\n    long long res=1; a%=m;\n    while(n>0){\n        if(n&1) res=res*a%m;\n        a=a*a%m;\n        n>>=1;\n    }\n    return res;\n}',lang:'c'}
+      ],
+      quiz:{q:'2^30 をO(log 30)で求める方法は？',opts:['ループで30回掛ける','繰り返し二乗法','電卓','不可能'],ans:1,exp:'繰り返し二乗法はO(log n)で巨大な累乗をmodで計算できる。'}
+    }},
+    {id:'l30',title:'文字列アルゴリズム',icon:'📜',desc:'KMPやZアルゴリズムで高速マッチング',xp:280,time:'65分',content:{
+      sections:[
+        {title:'文字列マッチング問題',body:'テキストT（長さn）の中にパターンP（長さm）が何箇所あるか効率的に求める問題。単純探索はO(nm)。'},
+        {title:'単純マッチング O(nm)',code:'int count=0;\nfor(int i=0;i+m<=n;i++){\n    int ok=1;\n    for(int j=0;j<m;j++)\n        if(T[i+j]!=P[j]){ok=0;break;}\n    if(ok) count++;\n}',lang:'c'}
+      ],
+      quiz:{q:'単純文字列マッチングの計算量は？',opts:['O(n)','O(m)','O(nm)','O(n+m)'],ans:2,exp:'テキスト長n、パターン長m。各位置でm文字比較するのでO(nm)。KMPならO(n+m)。'}
+    }},
+    {id:'l31',title:'グラフ理論の応用',icon:'🕸️',desc:'トポロジカルソート・強連結成分',xp:320,time:'70分',content:{
+      sections:[
+        {title:'トポロジカルソート',body:'有向非巡回グラフ（DAG）の頂点を、辺の向きを壊さないよう並べる。タスクの依存関係などに応用。'},
+        {title:'カーンのアルゴリズム',code:'/* 入次数0の頂点からキューに入れてBFS */\nfor(int i=1;i<=n;i++)\n    if(indeg[i]==0) queue[tail++]=i;\nwhile(head<tail){\n    int v=queue[head++];\n    printf("%d ",v);\n    for(/* vの隣接u */){\n        if(--indeg[u]==0)\n            queue[tail++]=u;\n    }\n}',lang:'c'}
+      ],
+      quiz:{q:'トポロジカルソートが可能なグラフの条件は？',opts:['完全グラフ','有向非巡回グラフ（DAG）','無向グラフ','木'],ans:1,exp:'閉路（サイクル）があるとトポロジカルソートはできない。DAGにのみ存在する。'}
+    }},
+    {id:'l32',title:'過去問解析：2023〜2025年',icon:'📋',desc:'実際の問題の解き方を解説',xp:300,time:'90分',content:{
+      sections:[
+        {title:'2025年 問題構成',body:'第1問(1点): 算術 → 第2問(2点): 条件分岐 → 第3問(3点): 2次元配列 → 第4問(4点): 全ペア判定 → 第5問(6点): 貪欲法 → 第6問以降: 高度な問題'},
+        {title:'攻略の鉄則',body:'① 第1〜3問を完答（確実に6点）\n② 第4〜5問を解けば計16点（上位圏）\n③ 第6〜7問の片方でも解ければ強力\n④ 第8問以降は理解だけして部分実装'},
+        {title:'頻出パターン',body:'• シミュレーション: 問題文の手順を忠実に実装\n• グリッドBFS: 4方向探索 + 外周から海をマーク\n• 貪欲法: ソート後に最適選択\n• DP: dp配列の定義を明確に\n• Union-Find: 連結成分・グループ管理'}
+      ],
+      quiz:{q:'第1〜3問を確実に解くとき、最重要スキルは？',opts:['ダイクストラ法','入出力・条件分岐・ループ・配列','セグメント木','Union-Find'],ans:1,exp:'低得点問題の核心は基礎スキル。入出力・if文・for文・配列の4つをマスターすれば第1〜3問はほぼ解ける。'}
+    }}
+  ]}
+];
 
-<script src="data.js"></script>
-<script src="visualizer.js"></script>
-<script src="judge.js"></script>
-<script src="app.js"></script>
+const RANKS = [
+  {name:'白帯',minXP:0,   color:'#e8e8e8',desc:'道場に入門したばかり'},
+  {name:'黄帯',minXP:200, color:'#f0c060',desc:'基礎の形ができてきた'},
+  {name:'青帯',minXP:600, color:'#4080e0',desc:'論理的思考が身についた'},
+  {name:'茶帯',minXP:1200,color:'#a06030',desc:'アルゴリズムを使いこなせる'},
+  {name:'黒帯',minXP:2500,color:'#282828',desc:'パソコン甲子園上位を狙える'},
+  {name:'赤帯',minXP:5000,color:'#e84040',desc:'全国入賞レベルの実力者'}
+];
+
+const ACHIEVEMENTS = [
+  {id:'a01',icon:'⛩️',name:'入門',        desc:'道場に初めて入門した',              cond:(xp)=>xp>=0},
+  {id:'a02',icon:'📝',name:'最初の一歩',  desc:'最初の問題を解いた',               cond:(xp,s)=>s>=1},
+  {id:'a03',icon:'🔥',name:'3日連続',     desc:'3日間連続ログイン',                cond:(xp,s,k)=>k>=3},
+  {id:'a04',icon:'💯',name:'十本目の矢',  desc:'10問解いた',                       cond:(xp,s)=>s>=10},
+  {id:'a05',icon:'🌟',name:'500XP達成',  desc:'XPが500を超えた',                  cond:(xp)=>xp>=500},
+  {id:'a06',icon:'⚡',name:'速解き師',    desc:'1分以内に問題を解いた',            cond:(xp,s,k,fast)=>fast},
+  {id:'a07',icon:'🏆',name:'1000XP達成', desc:'XPが1000を超えた',                 cond:(xp)=>xp>=1000},
+  {id:'a08',icon:'🌐',name:'グラフ開眼', desc:'グラフ問題を解いた',               cond:(xp,s,k,f,cats)=>cats&&cats.includes('graph')},
+  {id:'a09',icon:'🎯',name:'貪欲の達人', desc:'貪欲法問題を3問解いた',            cond:(xp,s,k,f,cats)=>cats&&cats.filter(c=>c==='greedy').length>=3},
+  {id:'a10',icon:'🔑',name:'黄帯昇段',   desc:'XPが200を超えた',                  cond:(xp)=>xp>=200},
+  {id:'a11',icon:'📚',name:'学者の卵',   desc:'5個のレッスンを修了',              cond:(xp,s,k,f,cats,les)=>les&&les>=5},
+  {id:'a12',icon:'🎭',name:'多言語修行', desc:'複数の言語でコードを書いた',       cond:(xp,s,k,f,cats,les,langs)=>langs&&langs>=2},
+  {id:'a13',icon:'🧮',name:'DP入門',     desc:'DP問題を解いた',                   cond:(xp,s,k,f,cats)=>cats&&cats.includes('dp')},
+  {id:'a14',icon:'🔢',name:'数の達人',   desc:'数学カテゴリを5問解いた',          cond:(xp,s,k,f,cats)=>cats&&cats.filter(c=>c==='math').length>=5},
+  {id:'a15',icon:'🌙',name:'2500XP達成', desc:'XPが2500を超えた（黒帯！）',       cond:(xp)=>xp>=2500},
+  {id:'a16',icon:'📖',name:'全レッスン制覇',desc:'20個以上のレッスンを修了',      cond:(xp,s,k,f,cats,les)=>les&&les>=20},
+  {id:'a17',icon:'🎌',name:'甲子園への道',desc:'過去問を10問以上解いた',           cond:(xp,s)=>s>=10},
+  {id:'a18',icon:'💡',name:'閃き',        desc:'文字列問題を解いた',               cond:(xp,s,k,f,cats)=>cats&&cats.includes('string')}
+];
+
+const TOPICS = [
+  {id:'math',   name:'数学・計算', icon:'➕', color:'#30c870'},
+  {id:'graph',  name:'グラフ理論', icon:'🌐', color:'#8060e8'},
+  {id:'dp',     name:'動的計画法', icon:'🧩', color:'#e84040'},
+  {id:'string', name:'文字列',     icon:'📝', color:'#e8a020'},
+  {id:'greedy', name:'貪欲法',     icon:'🎯', color:'#4080e0'}
+].map(t=>({...t,problems:PROBLEMS.filter(p=>p.cat===t.id).length}));
+
+// ============================================================
+// STATE
+// ============================================================
+const ST = (()=>{
+  const KEY='pckDojo_v3';
+  const def={xp:0,streak:0,lastDate:'',solved:[],cats:[],lessons:[],achs:[],fast:false,langs:[]};
+  let s={...def};
+  function load(){
+    try{const r=localStorage.getItem(KEY);if(r)s={...def,...JSON.parse(r)};}catch(e){}
+    const today=new Date().toDateString();
+    if(s.lastDate!==today){
+      const yest=new Date(Date.now()-86400000).toDateString();
+      s.streak=(s.lastDate===yest)?s.streak+1:1;
+      s.lastDate=today; save();
+    }
+  }
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(s));}catch(e){}}
+  function getRank(){let r=RANKS[0];for(const x of RANKS)if(s.xp>=x.minXP)r=x;return r;}
+  function getNextRank(){for(const x of RANKS)if(x.minXP>s.xp)return x;return null;}
+  function addXP(n){s.xp+=n;save();}
+  function solve(p,fast){
+    if(s.solved.includes(p.id)){toast('この問題は既に解いています！','✅');return false;}
+    s.solved.push(p.id);
+    if(p.cat&&!s.cats.includes(p.cat))s.cats.push(p.cat);
+    if(fast)s.fast=true;
+    addXP(p.points*20);
+    checkAchs();renderAll();confetti();
+    toast(`+${p.points*20} XP！「${p.title}」クリア！`,'🎉');
+    return true;
+  }
+  function completeLesson(id,xp){
+    if(s.lessons.includes(id))return false;
+    s.lessons.push(id);addXP(xp);checkAchs();renderAll();
+    toast(`+${xp} XP！レッスン完了！`,'📚');return true;
+  }
+  function checkAchs(){
+    let changed=false;
+    ACHIEVEMENTS.forEach(a=>{
+      if(s.achs.includes(a.id))return;
+      if(a.cond(s.xp,s.solved.length,s.streak,s.fast,s.cats,s.lessons.length,s.langs.length)){
+        s.achs.push(a.id);
+        toast(`実績解除：「${a.name}」${a.icon}`,'🏆');changed=true;
+      }
+    });
+    if(changed)save();
+  }
+  load();
+  return {get s(){return s;},getRank,getNextRank,addXP,solve,completeLesson,checkAchs,save};
+})();
+
+// ============================================================
+// TOAST & CONFETTI
+// ============================================================
+let toastTm;
+function toast(msg,icon='✨'){
+  const t=document.getElementById('toast');
+  t.innerHTML=`<span style="font-size:18px">${icon}</span> ${msg}`;
+  t.classList.remove('hidden');
+  clearTimeout(toastTm);
+  toastTm=setTimeout(()=>t.classList.add('hidden'),3200);
+}
+
+function confetti(){
+  const cv=document.getElementById('ccanvas');
+  cv.width=innerWidth;cv.height=innerHeight;
+  const ctx=cv.getContext('2d');
+  const ps=Array.from({length:70},()=>({
+    x:Math.random()*cv.width,y:Math.random()*-cv.height,
+    r:Math.random()*7+3,
+    c:['#e8a020','#f0c060','#30c870','#20c8b0','#8060e8','#e84040'][Math.floor(Math.random()*6)],
+    vx:(Math.random()-.5)*4,vy:Math.random()*4+2,angle:Math.random()*360,spin:(Math.random()-.5)*10
+  }));
+  let fr=0;
+  (function anim(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ps.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.angle+=p.spin;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle*Math.PI/180);
+      ctx.fillStyle=p.c;ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*.6);ctx.restore();
+    });
+    if(++fr<80)requestAnimationFrame(anim);
+    else ctx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function nav(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+page);
+  if(pg)pg.classList.add('active');
+  const ni=document.querySelector(`.ni[data-page="${page}"]`);
+  if(ni)ni.classList.add('active');
+  if(page==='visualizer')V.init();
+}
+
+function closeModal(id){document.getElementById(id).classList.add('hidden');}
+
+// ============================================================
+// PROGRESS RING
+// ============================================================
+function drawRing(pct){
+  const cv=document.getElementById('ringCanvas');
+  if(!cv)return;
+  const ctx=cv.getContext('2d'),W=cv.width,H=cv.height,cx=W/2,cy=H/2,r=62;
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=9;
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke();
+  const g=ctx.createLinearGradient(cx-r,cy,cx+r,cy);
+  g.addColorStop(0,'#e8a020');g.addColorStop(1,'#f0c060');
+  ctx.strokeStyle=g;ctx.lineWidth=9;ctx.lineCap='round';
+  ctx.beginPath();ctx.arc(cx,cy,r,-Math.PI/2,(pct/100)*Math.PI*2-Math.PI/2);ctx.stroke();
+}
+
+// ============================================================
+// RENDER ALL
+// ============================================================
+function renderAll(){
+  renderSidebar();renderDashboard();renderCurriculum();renderProblems();renderAchievements();
+}
+
+function renderSidebar(){
+  const s=ST.s,rank=ST.getRank(),next=ST.getNextRank();
+  document.getElementById('uAvatar').textContent=s.name?.[0]||'初';
+  document.getElementById('uName').textContent=s.name||'はじめて';
+  const ur=document.getElementById('uRank');ur.textContent=rank.name;ur.style.color=rank.color;
+  const ri=RANKS.indexOf(rank);
+  const prevXP=ri>0?RANKS[ri-1].minXP:0;
+  const nextXP=next?next.minXP:rank.minXP+1000;
+  const pct=nextXP>prevXP?Math.min(100,Math.round((s.xp-prevXP)/(nextXP-prevXP)*100)):100;
+  document.getElementById('xpFill').style.width=pct+'%';
+  document.getElementById('xpTxt').textContent=s.xp+' XP';
+  document.getElementById('streakN').textContent=s.streak;
+}
+
+function renderDashboard(){
+  const s=ST.s;
+  const total=PROBLEMS.length,done=s.solved.length;
+  const pct=Math.round(done/Math.max(total,1)*100);
+  drawRing(pct);
+  document.getElementById('ringPct').textContent=pct+'%';
+  document.getElementById('heroHi').textContent=done>0?`${s.name||''}さん、修行を続けよう！`:'ようこそ、道場へ！';
+  const rank=ST.getRank();
+  document.getElementById('heroBio').textContent=rank.desc+'。今日も一問解いて実力を磨こう！';
+  document.getElementById('stSolved').textContent=done;
+  document.getElementById('stXP').textContent=s.xp;
+  document.getElementById('stStreak').textContent=s.streak;
+  // daily
+  const unsolved=PROBLEMS.filter(p=>!s.solved.includes(p.id));
+  const dc=unsolved[0]||PROBLEMS[0];
+  document.getElementById('dcTag').textContent=dc.diff===1?'基礎問題':dc.diff===2?'初級問題':dc.diff===3?'中級問題':'上級問題';
+  document.getElementById('dcTitle').textContent=dc.title;
+  document.getElementById('dcDesc').textContent=dc.formula||dc.desc.substring(0,40)+'…';
+  // topic grid
+  const tg=document.getElementById('topicGrid');
+  tg.innerHTML=TOPICS.map(t=>{
+    const d=s.solved.filter(id=>PROBLEMS.find(p=>p.id===id)?.cat===t.id).length;
+    const pct2=t.problems>0?Math.round(d/t.problems*100):0;
+    return `<div class="tc" onclick="filterProblems('${t.id}')">
+      <div class="tc-icon">${t.icon}</div>
+      <div class="tc-name">${t.name}</div>
+      <div class="tc-cnt">${d}/${t.problems} 問</div>
+      <div class="tc-bar"><div class="tc-fill" style="width:${pct2}%;background:${t.color}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function filterProblems(cat){
+  nav('problems');
+  document.getElementById('catSel').value=cat;
+  renderProblems();
+}
+
+function renderCurriculum(){
+  const s=ST.s;
+  const cp=document.getElementById('currPath');
+  cp.innerHTML=CURRICULUM.map(lv=>{
+    const done=lv.lessons.filter(l=>s.lessons.includes(l.id)).length;
+    const prevDone=lv.level>1?CURRICULUM[lv.level-2].lessons.filter(l=>s.lessons.includes(l.id)).length:999;
+    const locked=lv.level>1&&prevDone<Math.ceil(CURRICULUM[lv.level-2].lessons.length*0.5);
+    return `<div class="lv-sec">
+      <div class="lv-head">
+        <div class="lv-badge ${lv.cls}">${lv.icon}</div>
+        <div>
+          <div class="lv-title">${lv.title}</div>
+          <div class="lv-sub">${lv.subtitle} — ${done}/${lv.lessons.length} 完了</div>
+        </div>
+      </div>
+      <div class="lessons">
+        ${lv.lessons.map(ls=>{
+          const isDone=s.lessons.includes(ls.id);
+          const isLocked=locked;
+          return `<div class="lc${isDone?' done':''}${isLocked?' locked':''}"
+            onclick="${isLocked?"toast('前のレベルを先にクリアしよう！','🔒')":"openLesson('"+ls.id+"')"}">
+            <div class="lc-hd"><div class="lc-icon">${ls.icon}</div><div>${isDone?'✅':isLocked?'🔒':'⭕'}</div></div>
+            <div class="lc-title">${ls.title}</div>
+            <div class="lc-desc">${ls.desc}</div>
+            <div class="lc-meta"><span>⏱ ${ls.time}</span><span class="lc-xp">+${ls.xp} XP</span></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderProblems(){
+  const s=ST.s;
+  const diff=document.querySelector('.fb.active')?.dataset?.diff||'all';
+  const cat=document.getElementById('catSel')?.value||'all';
+  const srch=document.getElementById('srch')?.value?.toLowerCase()||'';
+  const filtered=PROBLEMS.filter(p=>{
+    if(diff!=='all'&&p.diff!==parseInt(diff))return false;
+    if(cat!=='all'&&p.cat!==cat)return false;
+    if(srch&&!p.title.toLowerCase().includes(srch)&&!(p.tags||[]).some(t=>t.toLowerCase().includes(srch)))return false;
+    return true;
+  });
+  const list=document.getElementById('plist');
+  if(filtered.length===0){list.innerHTML='<div style="text-align:center;padding:36px;color:var(--text3)">条件に合う問題が見つかりません</div>';return;}
+  list.innerHTML=filtered.map(p=>{
+    const solved=s.solved.includes(p.id);
+    const cats={math:'数学',graph:'グラフ',dp:'DP',string:'文字列',greedy:'貪欲法'};
+    return `<div class="pi${solved?' solved':''}" onclick="openProblem('${p.id}')">
+      <div class="pi-diff">${Array.from({length:4},(_,i)=>`<span class="st ${i<p.diff?'on':'off'}">★</span>`).join('')}</div>
+      <div class="pi-info">
+        <div class="pi-name">${p.title}</div>
+        <div class="pi-meta">
+          <span class="pi-year">${p.year?p.year+'年 第'+p.num+'問':'練習問題'}</span>
+          <span class="pi-cat">${cats[p.cat]||p.cat}</span>
+          <span class="pi-pts">${p.points}点</span>
+          ${(p.tags||[]).slice(0,2).map(t=>`<span style="color:var(--teal);font-size:12px">[${t}]</span>`).join('')}
+        </div>
+      </div>
+      <div style="display:flex;gap:7px;flex-shrink:0">
+        ${solved?'<span class="bsolved">✅ 解済み</span>':''}
+        <button class="btn" style="padding:6px 14px;font-size:13px" onclick="event.stopPropagation();startProblem('${p.id}')">挑戦 →</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openProblem(id){
+  const p=PROBLEMS.find(x=>x.id===id);if(!p)return;
+  const cats={math:'数学',graph:'グラフ',dp:'DP',string:'文字列',greedy:'貪欲法'};
+  document.getElementById('pModalBody').innerHTML=`
+    <div style="margin-bottom:18px">
+      <h2 style="font-size:22px;font-weight:900;margin-bottom:8px">${p.title}</h2>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+        <span style="background:var(--gold);color:var(--ink);font-size:12px;font-weight:700;padding:3px 11px;border-radius:20px">${p.points}点</span>
+        <span style="background:rgba(160,144,248,.2);color:#a090f8;font-size:12px;padding:3px 11px;border-radius:20px;border:1px solid rgba(160,144,248,.3)">${p.year?p.year+'年 第'+p.num+'問':'練習問題'}</span>
+        <span style="background:rgba(32,200,176,.2);color:var(--teal);font-size:12px;padding:3px 11px;border-radius:20px;border:1px solid rgba(32,200,176,.3)">${cats[p.cat]||p.cat}</span>
+      </div>
+    </div>
+    <div class="ps-sec"><h4>問題文</h4><p>${p.desc}</p></div>
+    ${p.formula?`<div class="ps-sec"><h4>ポイント</h4><p style="color:var(--gold)">${p.formula}</p></div>`:''}
+    <div class="ps-sec"><h4>入力</h4><p>${p.inputDesc}</p></div>
+    <div class="ps-sec"><h4>出力</h4><p>${p.outputDesc}</p></div>
+    ${p.examples.map((ex,i)=>`<div class="ps-sec"><h4>例 ${i+1}</h4>
+      <div class="io-ex"><div class="io-ex-lbl">入力</div><pre>${ex.input}</pre><div class="io-ex-lbl" style="margin-top:5px">出力</div><pre>${ex.output}</pre></div>
+    </div>`).join('')}
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button class="btn" onclick="closeModal('pModal');startProblem('${p.id}')">コードを書く →</button>
+      <button class="btn-g" onclick="closeModal('pModal')">閉じる</button>
+    </div>`;
+  document.getElementById('pModal').classList.remove('hidden');
+}
+
+function startProblem(id){
+  const p=PROBLEMS.find(x=>x.id===id);if(!p)return;
+  nav('judge');J.setProblem(p);
+}
+
+function startDailyChallenge(){
+  const unsolved=PROBLEMS.filter(p=>!ST.s.solved.includes(p.id));
+  startProblem((unsolved[0]||PROBLEMS[0]).id);
+}
+
+function renderAchievements(){
+  const s=ST.s,rank=ST.getRank(),next=ST.getNextRank();
+  const rb=document.getElementById('rbelt');rb.style.background=rank.color;
+  const rn=document.getElementById('rname');rn.textContent=rank.name;rn.style.color=rank.color;
+  document.getElementById('rdesc').textContent=rank.desc;
+  const ri=RANKS.indexOf(rank);
+  const prevXP=ri>0?RANKS[ri-1].minXP:0;
+  const nextXP=next?next.minXP:s.xp+1;
+  const prog=nextXP>prevXP?Math.min(100,Math.round((s.xp-prevXP)/(nextXP-prevXP)*100)):100;
+  document.getElementById('rpfill').style.width=prog+'%';
+  document.getElementById('rptxt').textContent=next?`次の段位まで: ${next.minXP-s.xp} XP`:'最高段位達成！';
+  // rank path
+  document.getElementById('rpath').innerHTML=RANKS.map(r=>{
+    const ach=s.xp>=r.minXP,cur=rank.name===r.name;
+    return `<div class="rstage${cur?' cur':''}${ach?' ach':''}">
+      <div class="rs-belt" style="background:${r.color}"></div>
+      <div class="rs-info"><div class="rs-name">${r.name}</div><div class="rs-req">${r.minXP} XP以上 — ${r.desc}</div></div>
+      <div>${ach?'✅':cur?'👊':'🔒'}</div>
+    </div>`;
+  }).join('');
+  // achievements
+  document.getElementById('achGrid').innerHTML=ACHIEVEMENTS.map(a=>{
+    const unlocked=s.achs.includes(a.id);
+    return `<div class="ach-item ${unlocked?'unlocked':'locked'}">
+      <div class="ach-icon">${a.icon}</div>
+      <div class="ach-name">${a.name}</div>
+      <div class="ach-desc">${unlocked?a.desc:'???'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// LESSON
+// ============================================================
+function openLesson(id){
+  const lesson=CURRICULUM.flatMap(l=>l.lessons).find(l=>l.id===id);if(!lesson)return;
+  const c=lesson.content;
+  document.getElementById('lModalBody').innerHTML=`
+    <div class="lcon">
+      <span class="ltag">📚 レッスン</span>
+      <h2>${lesson.icon} ${lesson.title}</h2>
+      <div style="color:var(--text3);font-size:13px;margin-bottom:18px">⏱ ${lesson.time} | +${lesson.xp} XP</div>
+      ${c.sections.map(sec=>`
+        <h3>${sec.title}</h3>
+        ${sec.body?`<p>${sec.body.replace(/\n/g,'<br>')}</p>`:''}
+        ${sec.code?`<div class="cblock"><pre>${colorize(sec.code,sec.lang||'c')}</pre></div>`:''}
+      `).join('')}
+      ${c.quiz?`
+        <div class="quiz-sec">
+          <div class="quiz-q">❓ 理解チェック: ${c.quiz.q}</div>
+          <div class="quiz-opts">
+            ${c.quiz.opts.map((opt,i)=>`
+              <button class="qopt" onclick="answerQuiz(this,${i},${c.quiz.ans},'${id}',${lesson.xp})">
+                ${String.fromCharCode(65+i)}. ${opt}
+              </button>
+            `).join('')}
+          </div>
+          <div id="qfb_${id}" style="margin-top:10px;font-size:13px;display:none"></div>
+        </div>
+      `:`<div class="lnav"><button class="btn" onclick="finishLesson('${id}',${lesson.xp})">完了 ✓</button></div>`}
+    </div>`;
+  document.getElementById('lModal').classList.remove('hidden');
+}
+
+function answerQuiz(btn,sel,ans,lid,xp){
+  const opts=btn.parentElement.querySelectorAll('.qopt');
+  opts.forEach((o,i)=>{o.disabled=true;if(i===ans)o.classList.add('correct');else if(i===sel&&sel!==ans)o.classList.add('wrong');});
+  const fb=document.getElementById('qfb_'+lid);
+  const lesson=CURRICULUM.flatMap(l=>l.lessons).find(l=>l.id===lid);
+  if(fb){
+    fb.style.display='block';
+    if(sel===ans){
+      fb.innerHTML=`<span style="color:var(--green)">✅ 正解！${lesson?.content?.quiz?.exp||''}</span>`;
+      setTimeout(()=>finishLesson(lid,xp),1200);
+    } else {
+      fb.innerHTML=`<span style="color:#ff6060">❌ 不正解。正解は「${opts[ans].textContent.trim()}」です。<br>${lesson?.content?.quiz?.exp||''}</span>`;
+    }
+  }
+}
+
+function finishLesson(id,xp){
+  if(ST.completeLesson(id,xp))confetti();
+  closeModal('lModal');renderCurriculum();
+}
+
+function colorize(code,lang){
+  let s=code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  if(lang==='c'||lang==='cpp'){
+    s=s.replace(/(\/\/[^\n]*)/g,'<span class="cm">$1</span>')
+      .replace(/(\/\*[\s\S]*?\*\/)/g,'<span class="cm">$1</span>')
+      .replace(/\b(int|long|char|double|float|void|return|if|else|while|for|do|break|continue|printf|scanf|include|define|struct|typedef|static|const|bool|true|false|NULL|long long)\b/g,'<span class="kw">$1</span>')
+      .replace(/("(?:[^"\\]|\\.)*")/g,'<span class="str">$1</span>')
+      .replace(/\b(\d+)\b/g,'<span class="num">$1</span>');
+  } else if(lang==='python'){
+    s=s.replace(/(#[^\n]*)/g,'<span class="cm">$1</span>')
+      .replace(/\b(def|class|if|elif|else|for|while|return|import|from|in|not|and|or|print|input|range|len|int|str|float|list|True|False|None|map|sorted|sum|max|min)\b/g,'<span class="kw">$1</span>')
+      .replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g,'<span class="str">$1</span>')
+      .replace(/\b(\d+)\b/g,'<span class="num">$1</span>');
+  }
+  return s;
+}
+
+// ============================================================
+// JUDGE
+// ============================================================
+const J=(()=>{
+  let cur=null,hintLv=0,startTm=null;
+
+  function evalPy(code,input){
+    const lines=input.trim().split('\n');let li=0;const out=[];
+    function mockIn(){return lines[li++]||'';}
+    function mockPrint(...a){out.push(a.join(' '));}
+    let t=code.replace(/input\(\)/g,'__in__()').replace(/print\(/g,'__pr__(');
+    try{
+      new Function('__in__','__pr__',`
+        const map=(fn,iter)=>Array.from(iter).map(fn);
+        const int=(x)=>parseInt(x,10);const float=(x)=>parseFloat(x);
+        const str=(x)=>String(x);const len=(x)=>x.length;
+        const range=function(a,b,c){if(b===undefined){b=a;a=0;c=1;}if(c===undefined)c=1;const r=[];for(let i=a;c>0?i<b:i>b;i+=c)r.push(i);return r;};
+        const abs=Math.abs;const max=(...a)=>a.length===1&&Array.isArray(a[0])?Math.max(...a[0]):Math.max(...a);
+        const min=(...a)=>a.length===1&&Array.isArray(a[0])?Math.min(...a[0]):Math.min(...a);
+        const sum=(a)=>a.reduce((s,x)=>s+x,0);
+        const sorted=(a)=>[...a].sort((x,y)=>x-y);
+        const list=(x)=>[...x];
+        const math={ceil:Math.ceil,floor:Math.floor,sqrt:Math.sqrt,pow:Math.pow};
+        ${t}
+      `)(mockIn,mockPrint);
+      return {ok:true,out:out.join('\n')};
+    }catch(e){return {ok:false,out:'エラー: '+e.message};}
+  }
+
+  function norm(s){return s.trim().replace(/\r\n/g,'\n').replace(/[ \t]+$/gm,'');}
+
+  function runTests(p,code,lang){
+    const res=[];let allPass=true;
+    p.examples.forEach((ex,i)=>{
+      let got='',ok=false;
+      if(lang==='python'){
+        const r=evalPy(code,ex.input);
+        got=r.out.trim();ok=r.ok&&norm(got)===norm(ex.output);
+        if(!r.ok){got=r.out;allPass=false;}else allPass=allPass&&ok;
+      } else {
+        ok=checkStruct(code,lang,p);
+        got=ok?ex.output:'(C/Java はブラウザコンパイル不可。paiza.io や wandbox でテストしてください)';
+        allPass=allPass&&ok;
+      }
+      res.push({no:i+1,input:ex.input,expected:ex.output,got,pass:ok});
+    });
+    return {res,allPass};
+  }
+
+  function checkStruct(code,lang,p){
+    if(!code||code.trim().length<10)return false;
+    const c=code.toLowerCase();
+    if((lang==='c'||lang==='cpp')&&!c.includes('main'))return false;
+    const checks={
+      'p2025_1':()=>c.includes('a+b*x')||c.includes('a + b * x')||c.includes('a+b*x'),
+      'p2025_2':()=>c.includes('side')&&c.includes('up')&&c.includes('down'),
+      'p2023_1':()=>c.includes('%'),
+      'p2023_3':()=>c.includes('b/2')||c.includes('b / 2'),
+      'pex_02': ()=>c.includes('fizz')&&c.includes('buzz'),
+    };
+    return checks[p.id]?checks[p.id]():code.trim().length>30;
+  }
+
+  function setProblem(p){
+    cur=p;hintLv=0;startTm=Date.now();
+    document.getElementById('jSub').textContent=`${p.title} — ${p.year?p.year+'年 第'+p.num+'問':'練習問題'}`;
+    const cats={math:'数学',graph:'グラフ',dp:'DP',string:'文字列',greedy:'貪欲法'};
+    document.getElementById('pstmt').innerHTML=`
+      <div class="ps-title">${p.title}</div>
+      <span class="ps-pts">${p.points}点 | ${'★'.repeat(p.diff)+'☆'.repeat(4-p.diff)} | ${cats[p.cat]||p.cat}</span>
+      <div style="margin-bottom:14px">${(p.tags||[]).map(t=>`<span style="background:rgba(32,200,176,.2);color:var(--teal);font-size:12px;padding:2px 9px;border-radius:20px;margin-right:5px;border:1px solid rgba(32,200,176,.3)">${t}</span>`).join('')}</div>
+      <div class="ps-sec"><h4>問題文</h4><p>${p.desc}</p></div>
+      ${p.formula?`<div class="ps-sec"><h4>ポイント</h4><p style="color:var(--gold)">${p.formula}</p></div>`:''}
+      <div class="ps-sec"><h4>入力</h4><p>${p.inputDesc}</p></div>
+      <div class="ps-sec"><h4>出力</h4><p>${p.outputDesc}</p></div>
+      ${p.examples.map((ex,i)=>`<div class="ps-sec"><h4>入出力例 ${i+1}</h4>
+        <div class="io-ex"><div class="io-ex-lbl">入力</div><pre>${ex.input}</pre><div class="io-ex-lbl" style="margin-top:5px">出力</div><pre>${ex.output}</pre></div>
+      </div>`).join('')}`;
+    loadTmpl();updateLnums();
+    document.getElementById('tres').classList.add('hidden');
+    document.getElementById('hbox').classList.add('hidden');
+    document.getElementById('outArea').textContent='実行すると結果が表示されます';
+    document.getElementById('outArea').className='io-area oa';
+    document.getElementById('inArea').value='';
+  }
+
+  function loadTmpl(){
+    if(!cur)return;
+    const lang=document.getElementById('langSel').value;
+    document.getElementById('ced').value=cur.template?.[lang]||'// テンプレートがありません';
+    updateLnums();
+  }
+
+  function updateLnums(){
+    const ed=document.getElementById('ced');
+    const ln=document.getElementById('lnums');
+    if(!ed||!ln)return;
+    const n=ed.value.split('\n').length;
+    ln.innerHTML=Array.from({length:n},(_,i)=>i+1).join('<br>');
+  }
+
+  function doHint(){
+    if(!cur){toast('先に問題を選択してください','💡');return;}
+    const h=cur.hints||['ヒントはありません'];
+    const hb=document.getElementById('hbox');
+    hb.classList.remove('hidden');
+    hb.innerHTML=`<h4>💡 ヒント ${hintLv+1}/${h.length}</h4><p>${h[Math.min(hintLv,h.length-1)]}</p>
+      ${hintLv<h.length-1?`<button class="btn-g" style="margin-top:8px" onclick="J.doHint()">次のヒントを見る →</button>`:''}`;
+    hintLv=Math.min(hintLv+1,h.length-1);
+  }
+
+  function doReset(){
+    loadTmpl();
+    document.getElementById('tres').classList.add('hidden');
+    document.getElementById('hbox').classList.add('hidden');
+    hintLv=0;startTm=Date.now();
+  }
+
+  function doRun(){
+    if(!cur){document.getElementById('outArea').textContent='問題を選択してから実行してください。';return;}
+    const code=document.getElementById('ced').value;
+    const lang=document.getElementById('langSel').value;
+    const customIn=document.getElementById('inArea').value;
+    const outArea=document.getElementById('outArea');
+
+    if(customIn.trim()&&lang==='python'){
+      const r=evalPy(code,customIn);
+      outArea.textContent=r.out;
+      outArea.className='io-area oa '+(r.ok?'ok':'err');
+    } else if(customIn.trim()){
+      outArea.textContent='C言語/C++/Javaはブラウザ内コンパイル不可。\nPythonなら実行できます。\nonline: https://paiza.io または https://wandbox.org';
+      outArea.className='io-area oa';
+    } else {
+      outArea.textContent='↓ テストケースで確認';
+      outArea.className='io-area oa';
+    }
+
+    const {res,allPass}=runTests(cur,code,lang);
+    const el=Date.now()-startTm;const sec=Math.floor(el/1000);
+    const tres=document.getElementById('tres');
+    tres.classList.remove('hidden');
+    tres.innerHTML=`<div class="tres-ttl">${allPass?'✅ 全テストケース通過！':'❌ 一部のテストケースが不正解'}
+      <span style="color:var(--text3);font-size:12px;margin-left:12px">経過: ${sec}秒</span></div>
+      ${res.map(r=>`<div class="tr-case">
+        <div>${r.pass?'✅':'❌'}</div>
+        <div>テスト ${r.no}</div>
+        <div class="tr-res">入力: ${r.input.replace(/\n/g,' / ')} → 期待: ${r.expected.replace(/\n/g,' ')} | 結果: ${r.got.toString().replace(/\n/g,' ')}</div>
+      </div>`).join('')}`;
+
+    if(allPass){
+      ST.solve(cur,sec<60);
+      if(!ST.s.langs.includes(lang)){ST.s.langs.push(lang);ST.save();}
+    }
+  }
+
+  return {setProblem,loadTmpl,doHint,doReset,doRun,updateLnums,evalPy};
+})();
+
+function doRun(){J.doRun();}
+function doHint(){J.doHint();}
+function doReset(){J.doReset();}
+function onCedInput(){J.updateLnums();}
+function onCedKey(e){
+  if(e.key==='Tab'){
+    e.preventDefault();
+    const ed=e.target,s=ed.selectionStart,en=ed.selectionEnd;
+    ed.value=ed.value.substring(0,s)+'    '+ed.value.substring(en);
+    ed.selectionStart=ed.selectionEnd=s+4;
+    J.updateLnums();
+  }
+}
+
+// ============================================================
+// VISUALIZER
+// ============================================================
+const V=(()=>{
+  let cv,ctx,cur='sort',idx=0,steps=[],logs=[],playing=false,timer=null;
+  const C={bg:'#0d0d0f',surface:'#1e1e28',gold:'#e8a020',teal:'#20c8b0',red:'#e84040',green:'#30c870',purple:'#8060e8',text:'#e8e8f0',text2:'#a0a0b8',text3:'#606078'};
+
+  function buildSort(){
+    const a=[64,34,25,12,22,11,90,45,78,55];const arr=[...a];const s=[];const n=arr.length;
+    s.push({arr:[...arr],hi:-1,hj:-1,msg:'初期配列。バブルソートを開始します。'});
+    for(let i=0;i<n-1;i++){
+      for(let j=0;j<n-1-i;j++){
+        s.push({arr:[...arr],hi:j,hj:j+1,msg:`a[${j}]=${arr[j]} と a[${j+1}]=${arr[j+1]} を比較`});
+        if(arr[j]>arr[j+1]){[arr[j],arr[j+1]]=[arr[j+1],arr[j]];s.push({arr:[...arr],hi:j,hj:j+1,swap:j,msg:`a[${j}] > a[${j+1}] → 交換！`});}
+      }
+      s.push({arr:[...arr],hi:-1,sorted:n-1-i,msg:`パス${i+1}完了。最大値が末尾に移動。`});
+    }
+    s.push({arr:[...arr],done:true,msg:'ソート完了！🎉'});return s;
+  }
+  function drawSort(st){
+    const s=steps[st];if(!s)return;const W=cv.width,H=cv.height,n=s.arr.length;
+    const mx=Math.max(...s.arr);const bw=Math.floor((W-60)/n);const mh=H-80;
+    ctx.clearRect(0,0,W,H);
+    s.arr.forEach((v,i)=>{
+      const bh=Math.floor(v/mx*mh),x=30+i*bw,y=H-40-bh;
+      let col=C.teal;
+      if(s.done)col=C.green;
+      else if(i===s.hi||i===s.hj)col=C.gold;
+      else if(i===s.swap||i===s.swap+1)col=C.red;
+      else if(s.sorted!==undefined&&i>=n-1-s.sorted)col=C.green;
+      ctx.fillStyle=col;ctx.beginPath();ctx.roundRect(x+2,y,bw-4,bh,4);ctx.fill();
+      ctx.fillStyle=C.text2;ctx.font='11px monospace';ctx.textAlign='center';ctx.fillText(v,x+bw/2,H-20);
+    });
+    addLog(s.msg);
+  }
+
+  const G={nodes:[{id:0,x:.5,y:.15,l:'1'},{id:1,x:.25,y:.4,l:'2'},{id:2,x:.75,y:.4,l:'3'},{id:3,x:.15,y:.7,l:'4'},{id:4,x:.4,y:.7,l:'5'},{id:5,x:.6,y:.7,l:'6'},{id:6,x:.85,y:.7,l:'7'}],edges:[[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]]};
+  function buildBFS(){
+    const n=G.nodes.length;const adj=Array.from({length:n},()=>[]);G.edges.forEach(([a,b])=>{adj[a].push(b);adj[b].push(a);});
+    const s=[],dist=new Array(n).fill(-1),vis=new Array(n).fill(false),q=[];
+    dist[0]=0;vis[0]=true;q.push(0);
+    s.push({vis:[...vis],dist:[...dist],q:[...q],cur:-1,msg:'ノード1をキューに追加。dist[1]=0'});
+    while(q.length){
+      const v=q.shift();s.push({vis:[...vis],dist:[...dist],q:[...q],cur:v,msg:`ノード${v+1}をキューから取り出す（dist=${dist[v]}）`});
+      for(const u of adj[v])if(!vis[u]){vis[u]=true;dist[u]=dist[v]+1;q.push(u);s.push({vis:[...vis],dist:[...dist],q:[...q],cur:v,next:u,msg:`ノード${u+1}を発見！dist[${u+1}]=${dist[u]}`});}
+    }
+    s.push({vis:[...vis],dist:[...dist],q:[],done:true,msg:'BFS完了！全ノードの最短距離が確定しました。'});return s;
+  }
+  function drawBFS(si){
+    const s=steps[si];if(!s)return;const W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineWidth=2;
+    G.edges.forEach(([a,b])=>{const na=G.nodes[a],nb=G.nodes[b];ctx.beginPath();ctx.moveTo(na.x*W,na.y*H);ctx.lineTo(nb.x*W,nb.y*H);ctx.stroke();});
+    if(s.next!==undefined){const na=G.nodes[s.cur],nb=G.nodes[s.next];ctx.strokeStyle=C.gold;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(na.x*W,na.y*H);ctx.lineTo(nb.x*W,nb.y*H);ctx.stroke();}
+    G.nodes.forEach((nd,i)=>{
+      const x=nd.x*W,y=nd.y*H;
+      let fill=C.surface;
+      if(s.done)fill=C.green;else if(i===s.cur)fill=C.gold;else if(i===s.next)fill=C.teal;else if(s.vis[i])fill=C.purple;
+      ctx.fillStyle=fill;ctx.beginPath();ctx.arc(x,y,22,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=C.text;ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(nd.l,x,y);
+      if(s.dist[i]>=0){ctx.fillStyle=C.text2;ctx.font='11px monospace';ctx.fillText('d='+s.dist[i],x,y+32);}
+    });
+    addLog(s.msg);
+  }
+
+  function buildDFS(){
+    const n=G.nodes.length;const adj=Array.from({length:n},()=>[]);G.edges.forEach(([a,b])=>{adj[a].push(b);adj[b].push(a);});
+    const s=[],vis=new Array(n).fill(false),stack=[];
+    function dfs(v){vis[v]=true;stack.push(v);s.push({vis:[...vis],stack:[...stack],cur:v,msg:`ノード${v+1}を訪問（深さ=${stack.length}）`});
+      for(const u of adj[v])if(!vis[u]){s.push({vis:[...vis],stack:[...stack],cur:v,next:u,msg:`ノード${v+1}→${u+1}へ移動`});dfs(u);}
+      stack.pop();s.push({vis:[...vis],stack:[...stack],cur:v,back:true,msg:`ノード${v+1}からバックトラック`});}
+    dfs(0);s.push({vis:[...vis],stack:[],done:true,msg:'DFS完了！'});return s;
+  }
+  function drawDFS(si){
+    const s=steps[si];if(!s)return;const W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineWidth=2;
+    G.edges.forEach(([a,b])=>{const na=G.nodes[a],nb=G.nodes[b];ctx.beginPath();ctx.moveTo(na.x*W,na.y*H);ctx.lineTo(nb.x*W,nb.y*H);ctx.stroke();});
+    if(s.next!==undefined){const na=G.nodes[s.cur],nb=G.nodes[s.next];ctx.strokeStyle=C.red;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(na.x*W,na.y*H);ctx.lineTo(nb.x*W,nb.y*H);ctx.stroke();}
+    G.nodes.forEach((nd,i)=>{
+      const x=nd.x*W,y=nd.y*H;
+      let fill=C.surface;
+      if(s.done)fill=C.green;else if(i===s.cur)fill=s.back?C.purple:C.red;else if(s.vis[i])fill=C.teal;
+      ctx.fillStyle=fill;ctx.beginPath();ctx.arc(x,y,22,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=C.text;ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(nd.l,x,y);
+    });
+    ctx.fillStyle=C.text3;ctx.font='12px monospace';ctx.textAlign='left';
+    ctx.fillText('スタック: ['+s.stack.map(v=>v+1).join(' → ')+']',10,18);
+    addLog(s.msg);
+  }
+
+  function buildDP(){
+    const coins=[1,3,5],target=11;const dp=new Array(target+1).fill(Infinity);dp[0]=0;const s=[];
+    s.push({dp:[...dp],cur:-1,msg:`dp[0]=0 初期化。コイン: [${coins.join(', ')}]、目標: ${target}`});
+    for(let i=1;i<=target;i++){
+      for(const c of coins)if(i>=c&&dp[i-c]+1<dp[i]){dp[i]=dp[i-c]+1;s.push({dp:[...dp],cur:i,coin:c,msg:`dp[${i}]=dp[${i-c}]+1=${dp[i]}（コイン${c}使用）`});}
+      if(dp[i]===Infinity)s.push({dp:[...dp],cur:i,msg:`dp[${i}]=∞（到達不能）`});
+    }
+    s.push({dp:[...dp],done:true,msg:`完了！${target}円の最少コイン枚数: ${dp[target]}枚`});return s;
+  }
+  function drawDP(si){
+    const s=steps[si];if(!s)return;const W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
+    const n=s.dp.length,cw=Math.min(58,Math.floor((W-40)/n)),sx=(W-cw*n)/2,ch=58,cy=H/2-ch/2;
+    s.dp.forEach((v,i)=>{
+      const x=sx+i*cw;
+      let fill=C.surface;
+      if(s.done)fill=v<Infinity?C.green:C.surface;
+      else if(i===s.cur)fill=C.gold;
+      else if(v<Infinity)fill=C.teal;
+      ctx.fillStyle=fill;ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.roundRect(x+2,cy,cw-4,ch,4);ctx.fill();ctx.stroke();
+      ctx.fillStyle=C.text;ctx.font='bold 14px monospace';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(v===Infinity?'∞':v,x+cw/2,cy+ch/2);
+      ctx.fillStyle=C.text3;ctx.font='11px monospace';ctx.fillText(i,x+cw/2,cy+ch+15);
+    });
+    ctx.fillStyle=C.text2;ctx.font='13px sans-serif';ctx.textAlign='center';
+    ctx.fillText('dp[i] = i円を作る最少コイン枚数',W/2,cy-18);
+    addLog(s.msg);
+  }
+
+  function buildBinary(){
+    const arr=[2,5,8,12,16,23,38,56,72,91];const target=23;const s=[];let lo=0,hi=arr.length-1;
+    s.push({arr,lo,hi,mid:-1,target,msg:`目標値: ${target}。範囲[0,${hi}]から探索開始`});
+    while(lo<=hi){const mid=Math.floor((lo+hi)/2);
+      s.push({arr,lo,hi,mid,target,msg:`中央 mid=${mid}（値=${arr[mid]}）を確認`});
+      if(arr[mid]===target){s.push({arr,lo,hi,mid,target,found:mid,msg:`発見！arr[${mid}]=${target} ✓`});break;}
+      else if(arr[mid]<target){lo=mid+1;s.push({arr,lo,hi,mid,target,msg:`arr[${mid}]<${target} → 右半分へ（lo=${lo}）`});}
+      else{hi=mid-1;s.push({arr,lo,hi,mid,target,msg:`arr[${mid}]>${target} → 左半分へ（hi=${hi}）`});}
+    }
+    return s;
+  }
+  function drawBinary(si){
+    const s=steps[si];if(!s)return;const W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
+    const n=s.arr.length,cw=Math.min(68,Math.floor((W-40)/n)),sx=(W-cw*n)/2,ch=58,cy=H/2-ch/2;
+    s.arr.forEach((v,i)=>{
+      const x=sx+i*cw;
+      let fill=C.surface;
+      if(s.found===i)fill=C.green;else if(i===s.mid)fill=C.gold;else if(i>=s.lo&&i<=s.hi)fill='#1e2a3a';
+      ctx.fillStyle=fill;
+      ctx.strokeStyle=i>=s.lo&&i<=s.hi?C.teal:'rgba(255,255,255,0.05)';ctx.lineWidth=i>=s.lo&&i<=s.hi?1.5:1;
+      ctx.beginPath();ctx.roundRect(x+2,cy,cw-4,ch,4);ctx.fill();ctx.stroke();
+      ctx.fillStyle=i>=s.lo&&i<=s.hi?C.text:C.text3;ctx.font='bold 14px monospace';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(v,x+cw/2,cy+ch/2);
+      ctx.fillStyle=C.text3;ctx.font='10px monospace';ctx.fillText(i,x+cw/2,cy+ch+13);
+      if(i===s.lo){ctx.fillStyle=C.teal;ctx.font='bold 10px monospace';ctx.fillText('lo',x+cw/2,cy-13);}
+      if(i===s.hi&&i!==s.lo){ctx.fillStyle=C.red;ctx.font='bold 10px monospace';ctx.fillText('hi',x+cw/2,cy-13);}
+      if(i===s.mid){ctx.fillStyle=C.gold;ctx.font='bold 11px monospace';ctx.fillText('mid',x+cw/2,cy-13);}
+    });
+    ctx.fillStyle=C.text2;ctx.font='13px sans-serif';ctx.textAlign='center';
+    ctx.fillText(`目標値: ${s.target}`,W/2,cy-32);
+    addLog(s.msg);
+  }
+
+  function addLog(msg){logs.push(msg);if(logs.length>30)logs.shift();const vl=document.getElementById('vlog');if(vl)vl.textContent=logs.slice(-5).join('\n');}
+
+  const EXPS={
+    sort:{title:'バブルソート',text:'隣り合う要素を比較して、大きければ交換する操作を繰り返します。1回のパスで必ず最大値が末尾に移動します。計算量はO(N²)。実際の競技ではqsort（O(N log N)）を使いましょう。',steps:[{n:1,t:'隣り合う2要素を比較',c:'if (a[j] > a[j+1])'},{n:2,t:'大きければ交換',c:'int tmp=a[j]; a[j]=a[j+1]; a[j+1]=tmp;'},{n:3,t:'N-1回パスを繰り返す',c:'for(int i=0; i<n-1; i++)'}]},
+    bfs:{title:'幅優先探索 (BFS)',text:'キューを使って近いノードから順に探索します。最短経路（辺の重みが全て1）を求めるのに有効。2024年「湖の調査」などのグリッド問題に応用できます。',steps:[{n:1,t:'始点をキューに追加、dist[始点]=0',c:'queue.push(start); dist[start]=0;'},{n:2,t:'キューから先頭を取り出す',c:'int v = queue.front(); queue.pop();'},{n:3,t:'未訪問の隣接ノードをキューに追加',c:'if(!visited[u]) { dist[u]=dist[v]+1; queue.push(u); }'}]},
+    dfs:{title:'深さ優先探索 (DFS)',text:'スタック（または再帰）を使って深い方向に進んでいく探索方法。連結成分の検出や全探索などに使います。バックトラック（戻る）が特徴的です。',steps:[{n:1,t:'始点を訪問済みにする',c:'visited[v] = true;'},{n:2,t:'未訪問の隣接ノードを再帰的に探索',c:'for(int u: adj[v]) if(!visited[u]) dfs(u);'},{n:3,t:'全隣接ノードを探索したらバックトラック',c:'/* 再帰から戻る */'}]},
+    dp:{title:'動的計画法 (DP) — コイン問題',text:'「i円を作る最少コイン枚数」dp[i]を小さい値から順に計算します。dp[i] = min(dp[i-c]+1) for each coin c。記憶化で同じ計算を繰り返しません。',steps:[{n:1,t:'dp[0]=0で初期化（0円は0枚）',c:'dp[0] = 0;'},{n:2,t:'各コインでdp[i]を更新',c:'if(dp[i-c]+1 < dp[i]) dp[i] = dp[i-c]+1;'},{n:3,t:'1からtargetまで繰り返す',c:'for(int i=1; i<=target; i++)'}]},
+    binary:{title:'二分探索',text:'ソート済み配列で目標値を探す際、毎回範囲を半分に絞ります。O(log N)で非常に高速。N=10^9でも約30回の比較で終わります。',steps:[{n:1,t:'中央値midを計算',c:'int mid = (lo + hi) / 2;'},{n:2,t:'midの値と目標を比較して範囲を絞る',c:'if(arr[mid]<target) lo=mid+1; else hi=mid-1;'},{n:3,t:'lo > hi になるまで繰り返す',c:'while(lo <= hi)'}]}
+  };
+
+  function renderExp(){
+    const e=EXPS[cur]||EXPS.sort;
+    const ve=document.getElementById('vexp');if(!ve)return;
+    ve.innerHTML=`<div class="vexp-title">${e.title}</div>
+      <div class="vexp-txt">${e.text}</div>
+      <div class="vsteps">${e.steps.map(st=>`<div class="vstep"><div class="vstep-n">${st.n}</div><div class="vstep-t">${st.t}<br><code>${st.c}</code></div></div>`).join('')}</div>`;
+  }
+
+  function init(){
+    cv=document.getElementById('vcanvas');if(!cv)return;
+    ctx=cv.getContext('2d');
+    const rect=cv.parentElement.getBoundingClientRect();
+    cv.width=(rect.width||600)-40;cv.height=280;
+    setViz(cur);
+    window.addEventListener('resize',()=>{if(cv&&cv.parentElement){const r=cv.parentElement.getBoundingClientRect();cv.width=(r.width||600)-40;draw();}});
+  }
+
+  function setViz(type){
+    cur=type;idx=0;logs=[];playing=false;clearInterval(timer);
+    document.getElementById('vplay').textContent='▶ 自動再生';
+    switch(type){case'sort':steps=buildSort();break;case'bfs':steps=buildBFS();break;case'dfs':steps=buildDFS();break;case'dp':steps=buildDP();break;case'binary':steps=buildBinary();break;}
+    renderExp();draw();
+  }
+
+  function draw(){
+    if(!cv||!ctx)return;
+    switch(cur){case'sort':drawSort(idx);break;case'bfs':drawBFS(idx);break;case'dfs':drawDFS(idx);break;case'dp':drawDP(idx);break;case'binary':drawBinary(idx);break;}
+  }
+
+  function step(){if(idx<steps.length-1){idx++;draw();}else{clearInterval(timer);playing=false;document.getElementById('vplay').textContent='▶ 自動再生';}}
+
+  function playPause(){
+    if(playing){clearInterval(timer);playing=false;document.getElementById('vplay').textContent='▶ 自動再生';}
+    else{
+      if(idx>=steps.length-1){idx=0;logs=[];}
+      playing=true;document.getElementById('vplay').textContent='⏸ 一時停止';
+      const spd=parseInt(document.getElementById('vspeed').value)||5;
+      const delay=Math.max(100,1200-spd*100);
+      timer=setInterval(()=>{step();if(idx>=steps.length-1){clearInterval(timer);playing=false;document.getElementById('vplay').textContent='▶ 自動再生';}},delay);
+    }
+  }
+
+  function reset(){idx=0;logs=[];clearInterval(timer);playing=false;document.getElementById('vplay').textContent='▶ 自動再生';setViz(cur);}
+
+  return {init,setViz,step,playPause,reset};
+})();
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.ni').forEach(n=>{n.addEventListener('click',()=>nav(n.dataset.page));});
+  document.querySelectorAll('.fb').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.fb').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderProblems();});});
+  document.getElementById('catSel').addEventListener('change',renderProblems);
+  document.getElementById('srch').addEventListener('input',renderProblems);
+  document.getElementById('langSel').addEventListener('change',()=>J.loadTmpl());
+  document.querySelectorAll('.vb').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.vb').forEach(x=>x.classList.remove('active'));b.classList.add('active');V.setViz(b.dataset.viz);});});
+
+  setTimeout(()=>{
+    const splash=document.getElementById('splash');
+    splash.classList.add('out');
+    setTimeout(()=>{
+      splash.style.display='none';
+      document.getElementById('app').classList.remove('hidden');
+      renderAll();
+      ST.checkAchs();
+      if(ST.s.xp===0)toast('道場へようこそ！まずはカリキュラムから始めよう！','⛩️');
+    },600);
+  },2000);
+});
+</script>
 </body>
 </html>
+HTMLEOF
+echo "完了: $(wc -l < /home/claude/pck-app/pck_dojo.html) 行"
