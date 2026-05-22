@@ -245,22 +245,59 @@ body{background:var(--ink);color:var(--text);font-family:var(--fn);line-height:1
 /* ── LESSON CONTENT ── */
 .lcon h2{font-size:22px;font-weight:900;margin-bottom:6px}
 .ltag{display:inline-block;background:var(--teal);color:var(--ink);font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px;margin-bottom:14px}
-.lcon h3{font-size:15px;font-weight:700;margin:20px 0 8px;color:var(--gold)}
-.lcon p{font-size:13px;color:var(--text2);line-height:1.9;margin-bottom:10px}
-.code-block{background:var(--ink2);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin:12px 0;overflow-x:auto}
-.code-block pre{font-family:var(--fm);font-size:12px;color:var(--text);line-height:1.7;white-space:pre}
-.kw{color:#a080f8}
-.cm{color:var(--text3);font-style:italic}
-.str{color:#60e898}
-.num{color:var(--gold2)}
-.quiz-wrap{margin-top:20px;background:var(--surface3);border-radius:var(--r);padding:16px}
-.quiz-q{font-size:14px;font-weight:700;margin-bottom:12px}
-.quiz-opts{display:flex;flex-direction:column;gap:6px}
-.qopt{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:10px 14px;cursor:pointer;font-size:13px;transition:all .15s;text-align:left;font-family:var(--fn);color:var(--text)}
-.qopt:hover{border-color:var(--gold)}
-.qopt.correct{border-color:var(--green);background:rgba(40,200,112,.1);color:var(--green)}
-.qopt.wrong{border-color:var(--red);background:rgba(232,64,80,.1);color:#ff6060}
-.lesson-nav{display:flex;justify-content:flex-end;margin-top:20px;padding-top:12px;border-top:1px solid var(--border)}
+.lcon p{font-size:13px;color:var(--text2);line-height:1.95;margin-bottom:10px}
+/* Section headings */
+.l-sec-h{font-size:15px;font-weight:700;margin:24px 0 10px;color:var(--gold);display:flex;align-items:center;gap:8px}
+.l-sec-h::after{content:'';flex:1;height:1px;background:rgba(232,160,32,.2)}
+/* Concept callout */
+.l-concept{background:linear-gradient(135deg,rgba(136,96,232,.1),rgba(24,200,168,.07));border:1px solid rgba(136,96,232,.25);border-left:3px solid var(--purple);border-radius:var(--r2);padding:13px 15px;margin:10px 0;font-size:13px;color:var(--text2);line-height:1.85}
+.l-concept strong{color:var(--text);font-weight:700}
+/* Warning callout */
+.l-warn{background:rgba(232,160,32,.07);border:1px solid rgba(232,160,32,.3);border-left:3px solid var(--gold);border-radius:var(--r2);padding:12px 15px;margin:10px 0;font-size:13px;color:var(--text2);line-height:1.8}
+.l-warn strong{color:var(--gold)}
+/* Error / danger callout */
+.l-danger{background:rgba(232,64,80,.07);border:1px solid rgba(232,64,80,.25);border-left:3px solid var(--red);border-radius:var(--r2);padding:12px 15px;margin:10px 0;font-size:13px;color:var(--text2);line-height:1.8}
+/* Step list */
+.l-steps{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.l-step{display:flex;align-items:flex-start;gap:10px;background:var(--surface3);border-radius:var(--r2);padding:10px 13px}
+.l-step-n{width:22px;height:22px;background:var(--teal);color:var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;margin-top:1px}
+.l-step-t{font-size:13px;color:var(--text2);line-height:1.75}
+.l-step-t strong{color:var(--text)}
+.l-step-t code{font-family:var(--fm);color:var(--teal);font-size:11.5px;background:rgba(24,200,168,.1);padding:1px 5px;border-radius:4px}
+/* Comparison table */
+.l-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12px}
+.l-table th{background:var(--surface3);color:var(--text);font-weight:700;padding:8px 12px;text-align:left;border:1px solid var(--border2)}
+.l-table td{padding:7px 12px;border:1px solid var(--border);color:var(--text2);vertical-align:top}
+.l-table tr:hover td{background:rgba(255,255,255,.02)}
+/* Inline badge */
+.l-badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;margin:0 2px}
+.l-badge.green{background:rgba(40,200,112,.2);color:var(--green);border:1px solid rgba(40,200,112,.3)}
+.l-badge.red{background:rgba(232,64,80,.2);color:#ff7080;border:1px solid rgba(232,64,80,.3)}
+.l-badge.teal{background:rgba(24,200,168,.2);color:var(--teal);border:1px solid rgba(24,200,168,.3)}
+.l-badge.gold{background:rgba(232,160,32,.2);color:var(--gold);border:1px solid rgba(232,160,32,.3)}
+/* Code block */
+.code-block{background:var(--ink2);border:1px solid var(--border);border-radius:var(--r2);margin:12px 0;overflow:hidden}
+.code-block-title{background:var(--surface3);padding:6px 13px;font-size:11px;color:var(--text3);font-family:var(--fm);font-weight:600;border-bottom:1px solid var(--border);letter-spacing:.04em}
+.code-block pre{padding:13px 14px;font-family:var(--fm);font-size:12px;color:var(--text);line-height:1.75;white-space:pre;overflow-x:auto}
+.kw{color:#a080f8}.cm{color:var(--text3);font-style:italic}.str{color:#60e898}.num{color:var(--gold2)}
+/* Quiz */
+.quiz-wrap{margin-top:22px;background:var(--surface3);border-radius:var(--r);padding:18px;border:1px solid var(--border2)}
+.quiz-label{font-size:11px;color:var(--teal);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.quiz-q{font-size:14px;font-weight:700;margin-bottom:13px;line-height:1.6}
+.quiz-opts{display:flex;flex-direction:column;gap:7px}
+.qopt{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:11px 15px;cursor:pointer;font-size:13px;transition:all .15s;text-align:left;font-family:var(--fn);color:var(--text);display:flex;align-items:center;gap:10px}
+.qopt:hover{border-color:var(--gold);background:rgba(232,160,32,.04)}
+.qopt-key{width:22px;height:22px;border-radius:50%;background:var(--surface3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:var(--text2)}
+.qopt:hover .qopt-key{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.qopt.correct{border-color:var(--green);background:rgba(40,200,112,.08);color:var(--text)}
+.qopt.correct .qopt-key{background:var(--green);color:var(--ink);border-color:var(--green)}
+.qopt.wrong{border-color:var(--red);background:rgba(232,64,80,.08)}
+.qopt.wrong .qopt-key{background:var(--red);color:#fff;border-color:var(--red)}
+.quiz-fb{margin-top:12px;padding:11px 14px;border-radius:var(--r2);font-size:13px;line-height:1.7;display:none}
+.quiz-fb.ok{background:rgba(40,200,112,.1);border:1px solid rgba(40,200,112,.3);color:var(--green)}
+.quiz-fb.ng{background:rgba(232,64,80,.1);border:1px solid rgba(232,64,80,.3);color:#ff7080}
+.lesson-nav{display:flex;justify-content:flex-end;margin-top:20px;padding-top:14px;border-top:1px solid var(--border)}
+
 
 /* ── TOAST & CONFETTI ── */
 .toast{position:fixed;bottom:20px;right:20px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:12px 18px;font-size:13px;color:var(--text);z-index:9000;display:flex;align-items:center;gap:8px;box-shadow:0 8px 28px rgba(0,0,0,.4);animation:tin .25s ease;max-width:340px}
@@ -709,72 +746,135 @@ const PROBLEMS = [
 ];
 
 // ═══════════════════════════════════════════════════════════
-// DATA: CURRICULUM
+// DATA: CURRICULUM  ── rich section format
+// sections support: t(heading), b(body), concept, warn, danger,
+//   steps[], table{h,rows}, code, codes[], title(code title)
 // ═══════════════════════════════════════════════════════════
 const CURRICULUM = [
 {level:1,title:'白帯修行',sub:'入出力・基礎計算・条件分岐・ループ',icon:'🌱',cls:'l1',lessons:[
   {id:'l01',title:'C言語の基本構造',icon:'📝',desc:'printf, scanf, main関数',xp:50,time:'15分',content:{
     sections:[
-      {t:'C言語とは？',b:'C言語はパソコン甲子園で最も多く使われる言語の一つ。高速で強力、競技プログラミングに最適！'},
-      {t:'Hello World',code:'#include <stdio.h>\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}',lang:'c'},
-      {t:'変数と四則演算',code:'#include <stdio.h>\nint main() {\n    int a=10, b=3;\n    printf("%d\\n", a+b);  /* 13 */\n    printf("%d\\n", a/b);  /* 3 (整数除算) */\n    printf("%d\\n", a%b);  /* 1 (余り) */\n    return 0;\n}',lang:'c'},
-      {t:'scanfで入力を受け取る',b:'&を付けるのを忘れずに！（&はアドレスを表す）',code:'int x, y;\nscanf("%d %d", &x, &y);\nprintf("%d\\n", x + y);',lang:'c'}
+      {concept:'**C言語**はパソコン甲子園で最も採用率が高い言語。高速・汎用的で、競技プログラミングに最適。まずプログラムの「骨格」を丸暗記しよう。'},
+      {t:'① 最小限のプログラム構造',
+       code:'#include <stdio.h>\nint main() {\n    /* ここに処理を書く */\n    return 0;\n}',lang:'c',title:'雛形（これをコピーして使い回す）'},
+      {t:'② 出力：printf',
+       steps:['**書式文字列**でどんな形で出すかを指定する','整数は `%d`、文字列は `%s`、改行は `\\n`'],
+       code:'printf("%d\\n", 42);       /* 42 */\nprintf("%d %d\\n", 1, 2);  /* 1 2 */\nprintf("答え: %d\\n", 3+4); /* 答え: 7 */\n',lang:'c',title:'printf の使い方'},
+      {t:'③ 入力：scanf',
+       warn:'**& を絶対に忘れるな！**　`scanf("%d", x)` は動かない。`scanf("%d", &x)` が正しい。',
+       code:'int a, b;\nscanf("%d", &a);          /* 1つだけ読む */\nscanf("%d %d", &a, &b);   /* 空白区切りで2つ読む */\nprintf("%d\\n", a + b);\n',lang:'c',title:'scanf の使い方'},
+      {t:'④ 変数の型と計算',
+       table:{
+         h:['型','サイズ','最大値の目安','使いどころ'],
+         rows:[
+           ['`int`','4 byte','約 **21億**','ほとんどの場面'],
+           ['`long long`','8 byte','約 **922京**','大きな数・掛け算後'],
+           ['`double`','8 byte','小数','幾何・確率'],
+           ['`char`','1 byte','文字1文字','文字列処理'],
+         ]
+       }},
+      {danger:'**整数オーバーフロー** が最も多いバグ！掛け算や足し算の結果が int の範囲を超えると意図しない値になる。\n→ 答えが21億を超えそうなら最初から `long long` を使う。'},
     ],
-    quiz:{q:'5 / 2 の結果は？（C言語の整数除算）',opts:['2.5','2','3','2.0'],ans:1,exp:'整数同士の除算は小数点以下を切り捨て。5÷2=2。'}
+    quiz:{q:'scanf で変数 x に整数を読み込む正しい書き方は？',opts:['scanf("%d", x)','scanf("%d", &x)','scanf(x, "%d")','input(x)'],ans:1,exp:'&x はxのアドレス（場所）を意味する。scanfは「変数の住所」を受け取り、そこに直接書き込む。'}
   }},
   {id:'l02',title:'条件分岐 if/else',icon:'🔀',desc:'場合分けのプログラム',xp:60,time:'20分',content:{
     sections:[
-      {t:'if文の基本',code:'int x;\nscanf("%d",&x);\nif(x>0){\n    printf("正\\n");\n} else if(x<0){\n    printf("負\\n");\n} else {\n    printf("ゼロ\\n");\n}',lang:'c'},
-      {t:'比較演算子一覧',b:'== (等しい) / != (等しくない) / < / <= / > / >=\n&& (両方true) / || (どちらかtrue) / ! (否定)'},
-      {t:'実践：花火問題（2025年第2問）',b:'展望デッキの高さHと花火の球（中心C、半径R）の位置関係を判定。',code:'int lo=c-r, hi=c+r;\nif(lo<=h&&h<=hi) printf("side\\n");\nelse if(lo>h)    printf("up\\n");\nelse             printf("down\\n");',lang:'c'}
+      {concept:'プログラムの「判断力」= if/else。条件が **true** なら実行、**false** なら別の処理へ。PCK過去問の第2問はほぼ必ずこれが要る。'},
+      {t:'① if/else if/else の構造',
+       code:'int x;\nscanf("%d",&x);\nif(x > 0) {\n    printf("正\\n");\n} else if(x < 0) {\n    printf("負\\n");\n} else {\n    printf("ゼロ\\n");\n}',lang:'c',title:'基本パターン'},
+      {t:'② 比較演算子・論理演算子',
+       table:{
+         h:['演算子','意味','例'],
+         rows:[
+           ['`==`','等しい','`a == b`'],
+           ['`!=`','等しくない','`a != b`'],
+           ['`<` `<=`','より小さい / 以下','`x <= 5`'],
+           ['`>` `>=`','より大きい / 以上','`x >= 0`'],
+           ['`&&`','かつ（両方 true）','`x>0 && x<10`'],
+           ['`||`','または（どちらか true）','`x<0 || x>100`'],
+           ['`!`','否定','`!flag`'],
+         ]
+       }},
+      {t:'③ 実践：2025年第2問「タワーから見る花火」',
+       concept:'花火の球（中心C、半径R）と展望デッキ（高さH）の位置関係を 3 パターンで場合分けする。',
+       steps:[
+         '最低点 `lo = C - R`、最高点 `hi = C + R` を計算',
+         '`lo <= H && H <= hi` → **side**（横から見る）',
+         '`lo > H` → **up**（見上げる）',
+         '`hi < H` → **down**（見下ろす）',
+       ],
+       code:'int lo=c-r, hi=c+r;\nif(lo<=h && h<=hi) printf("side\\n");\nelse if(lo > h)    printf("up\\n");\nelse               printf("down\\n");',lang:'c',title:'解答コード'},
+      {warn:'**境界値のミス**が最多バグ。`<` と `<=` のどちらを使うかは問題文を3回読め！'},
     ],
-    quiz:{q:'x=5のとき if(x>3 && x<10) の結果は？',opts:['true（実行される）','false（実行されない）','エラー','コンパイル不可'],ans:0,exp:'5>3=true、5<10=true。&&はどちらもtrueのときtrue。'}
+    quiz:{q:'x=5のとき if(x>3 && x<10) は実行される？',opts:['Yes（true）','No（false）','エラー','実行時に決まる'],ans:0,exp:'5>3=true かつ 5<10=true。&& は両方 true のとき true。'}
   }},
   {id:'l03',title:'for/whileループ',icon:'🔁',desc:'繰り返し処理をマスター',xp:70,time:'25分',content:{
     sections:[
-      {t:'forループ',code:'int sum=0;\nfor(int i=1; i<=10; i++){\n    sum += i;  /* 1+2+...+10 */\n}\nprintf("%d\\n", sum); /* 55 */',lang:'c'},
-      {t:'whileループ（菌の祖先問題より）',code:'int b;\nscanf("%d",&b);\nwhile(b>=1){\n    printf("%d\\n",b);\n    b = b/2;  /* 親の番号へ */\n}',lang:'c'},
-      {t:'ネストしたループ（二重ループ）',code:'for(int i=0;i<n;i++){\n    for(int j=0;j<m;j++){\n        printf("%d ",a[i][j]);\n    }\n    printf("\\n");\n}',lang:'c'}
+      {concept:'「同じことを N 回繰り返す」= ループ。競技プログラミングの 90% はループで成り立っている。'},
+      {t:'① forループ ── 回数が決まっているとき',steps:['`int i=0` → 初期値','`i < n` → 継続条件（ここが境界値ミスの元！）','`i++` → 1ずつ増やす'],
+       code:'int sum = 0;\nfor(int i = 1; i <= 10; i++) {\n    sum += i;\n}\nprintf("%d\\n", sum); /* 55 */',lang:'c',title:'1+2+…+10'},
+      {t:'② whileループ ── 条件で動かすとき',concept:'回数ではなく「〇〇になるまで」という処理に向いている。\n2023年第3問「菌の祖先」: 番号が1以上のあいだ親を辿り続ける。',
+       code:'int b;\nscanf("%d", &b);\nwhile(b >= 1) {\n    printf("%d\\n", b);\n    b = b / 2;  /* 親の番号 = 自分 ÷ 2 */\n}',lang:'c',title:'菌の祖先（2023年Q3）'},
+      {t:'③ 二重ループ ── 2次元データ',concept:'2025年第3問「登山記録」は N山×M回。外ループ=山、内ループ=登山回数。',
+       code:'int ans = 0;\nfor(int i = 0; i < n; i++) {        /* 山ごと */\n    int peak = 0;\n    for(int j = 0; j < m; j++) {    /* 登山回数ごと */\n        int h; scanf("%d", &h);\n        if(h > peak) peak = h;\n    }\n    ans += peak;\n}\nprintf("%d\\n", ans);',lang:'c',title:'登山記録（2025年Q3）'},
+      {warn:'`i < n` と `i <= n` の違いに注意！**n個の配列**なら `i < n`（0〜n-1）、**1〜nの合計**なら `i <= n`。'},
     ],
-    quiz:{q:'for(int i=0; i<5; i++) の繰り返し回数は？',opts:['4回','5回','6回','0回'],ans:1,exp:'i=0,1,2,3,4の5回。i<5なのでi=5でループ終了。'}
+    quiz:{q:'for(int i=0; i<5; i++) は何回実行される？',opts:['4回','5回','6回','0回'],ans:1,exp:'i=0,1,2,3,4 の5回。i=5で i<5 が false になりループ終了。'}
   }},
   {id:'l04',title:'配列の使い方',icon:'📦',desc:'N個のデータをまとめて管理',xp:80,time:'30分',content:{
     sections:[
-      {t:'1次元配列の宣言と入出力',code:'int n;\nscanf("%d",&n);\nint a[100000];  /* 最大10万個 */\nfor(int i=0;i<n;i++) scanf("%d",&a[i]);\nint mx=a[0];\nfor(int i=1;i<n;i++)\n    if(a[i]>mx) mx=a[i];\nprintf("%d\\n",mx);',lang:'c'},
-      {t:'2次元配列（登山記録問題より）',code:'int n,m;\nscanf("%d %d",&n,&m);\nint a[105][105];\nfor(int i=0;i<n;i++)\n    for(int j=0;j<m;j++)\n        scanf("%d",&a[i][j]);',lang:'c'}
+      {concept:'配列 = 同じ型の変数を連続して並べたもの。N個のデータを処理するには配列が必須。\nインデックスは **0始まり** ← ここが最大の落とし穴！'},
+      {t:'① 1次元配列',steps:['`int a[100000];` → サイズは必ず最大制約+αで宣言','`a[0]` が最初、`a[n-1]` が最後。`a[n]` は**範囲外！**','`for(int i=0;i<n;i++) scanf("%d",&a[i]);` で読み込む'],
+       code:'int n; scanf("%d", &n);\nint a[100005];  /* 余裕を持って確保 */\nfor(int i = 0; i < n; i++) scanf("%d", &a[i]);\nint mx = a[0];\nfor(int i = 1; i < n; i++) if(a[i] > mx) mx = a[i];\nprintf("%d\\n", mx);',lang:'c',title:'最大値（定番パターン）'},
+      {t:'② 2次元配列（登山記録問題より）',
+       code:'int a[105][105]; /* [行][列] の順 */\nfor(int i = 0; i < n; i++)\n    for(int j = 0; j < m; j++)\n        scanf("%d", &a[i][j]);',lang:'c',title:'2次元配列の入力'},
+      {danger:'**3大バグ**: ① `a[n]` 範囲外アクセス ② 配列サイズが小さすぎる ③ ローカル配列の初期化忘れ（グローバルなら自動0）'},
     ],
-    quiz:{q:'int a[5]; の有効なインデックスは？',opts:['0〜5','0〜4','1〜5','1〜4'],ans:1,exp:'C配列は0始まり。a[0]〜a[4]の5要素。a[5]は範囲外でバグの原因！'}
+    quiz:{q:'int a[5] の有効なインデックスは？',opts:['0〜5','0〜4','1〜5','1〜4'],ans:1,exp:'C は 0 始まり。a[0]〜a[4] の5要素。a[5] は範囲外でメモリ破壊！'}
   }},
-  {id:'l05',title:'剰余演算子%と数の性質',icon:'🔢',desc:'余り演算子%の活用法',xp:60,time:'20分',content:{
+  {id:'l05',title:'剰余% と数の性質',icon:'🔢',desc:'余り計算・切り上げ・大きな数',xp:60,time:'20分',content:{
     sections:[
-      {t:'%演算子（余り）',b:'a%b でaをbで割った余り。偶奇判定・周期処理に必須！',code:'printf("%d\\n",10%3);  /* 1 */\nprintf("%d\\n",7%2);   /* 1 (奇数) */\nprintf("%d\\n",8%2);   /* 0 (偶数) */\n/* キャンディ分配問題: A%(N+1) */\n',lang:'c'},
-      {t:'long longで大きな数を扱う',b:'int の最大値は約21億。それ以上はlong longを使う！',code:'long long big = 1000000000LL * 1000000000LL;\nprintf("%lld\\n", big); /* %lldを使う！ */',lang:'c'}
+      {concept:'`%` は「割った余り」。**周期・偶奇・均等分割**のすべてに使う競技必須ツール。'},
+      {t:'① % の基本',table:{h:['式','結果','使いどころ'],rows:[['`10 % 3`','1','10÷3の余り'],['`7 % 2`','1（奇数）','偶奇判定'],['`a % (n+1)`','0〜n','2023年Q1 キャンディ分配']]}},
+      {t:'② 切り上げ除算',concept:'「N 個を K 人で分けるときの最少人数」→ `(N + K - 1) / K` で切り上げ計算。\n**2024年第2問「神輿の担ぎ手」** で使う！',
+       code:'int w=250, c=50;\nint need = (w + c - 1) / c; /* = 5（切り上げ） */\n',lang:'c',title:'切り上げ除算パターン'},
+      {t:'③ long long ── 大きな数',danger:'`int` の最大は約21億。**掛け算後**に簡単に超える！`(long long)a*b` でキャストを忘れずに。',
+       code:'long long ok = (long long)100000 * 100000;\nprintf("%lld\\n", ok);  /* 10000000000 */\n',lang:'c',title:'long long キャスト'},
     ],
-    quiz:{q:'17 % 5 の値は？',opts:['2','3','1','0'],ans:0,exp:'17=5×3+2。余りは2。'}
+    quiz:{q:'(250 + 50 - 1) / 50 の結果は？',opts:['4','5','6','50'],ans:1,exp:'(299)/50 = 5（整数除算）。切り上げ除算の定番パターン。'}
   }},
-  {id:'l06',title:'関数の定義と再帰',icon:'⚙️',desc:'処理を関数にまとめて再利用',xp:70,time:'25分',content:{
+  {id:'l06',title:'関数と再帰',icon:'⚙️',desc:'コードを整理して再利用する',xp:70,time:'25分',content:{
     sections:[
-      {t:'関数とは',code:'int add(int a, int b){\n    return a + b;\n}\nint main(){\n    printf("%d\\n", add(3,4)); /* 7 */\n    return 0;\n}',lang:'c'},
-      {t:'再帰関数（フィボナッチ）',code:'long long fib(int n){\n    if(n<=1) return n;  /* ベースケース */\n    return fib(n-1)+fib(n-2);\n}',lang:'c'},
-      {t:'素数判定関数',code:'#include <stdbool.h>\nbool isPrime(int n){\n    if(n<2) return false;\n    for(int i=2;(long long)i*i<=n;i++)\n        if(n%i==0) return false;\n    return true;\n}',lang:'c'}
+      {concept:'関数 = 処理に名前をつけて再利用できるようにしたもの。素数判定・GCDなど頻出処理は関数化して使い回そう。'},
+      {t:'① GCD / LCM（競技定番）',steps:['`gcd(a,b)` = `gcd(b, a%b)` ← ユークリッドの互除法','`lcm = a / gcd(a,b) * b` ← 先に割ってからかける（オーバーフロー対策）'],
+       code:'long long gcd(long long a, long long b) {\n    return b == 0 ? a : gcd(b, a % b);\n}\nlong long lcm(long long a, long long b) {\n    return a / gcd(a, b) * b;\n}',lang:'c',title:'GCD / LCM'},
+      {t:'② 素数判定',concept:'2 から √N まで割り切れるか調べる。`i*i <= n` という形が安全（浮動小数誤差がない）。\n2023年第5問「2023に似た数」で使う！',
+       code:'#include <stdbool.h>\nbool isPrime(long long n) {\n    if(n < 2) return false;\n    for(long long i = 2; i * i <= n; i++)\n        if(n % i == 0) return false;\n    return true;\n}',lang:'c',title:'素数判定'},
+      {warn:'再帰には必ず **ベースケース（終了条件）** が必要。ないと無限ループ → スタックオーバーフロー！'},
     ],
-    quiz:{q:'再帰関数に必ず必要なものは？',opts:['ループ','ベースケース（終了条件）','配列','ポインタ'],ans:1,exp:'再帰は必ずベースケース（終了条件）が必要。ないと無限ループになりスタックオーバーフロー！'}
+    quiz:{q:'gcd(12, 8) は？',opts:['2','4','6','24'],ans:1,exp:'gcd(12,8) → gcd(8,4) → gcd(4,0) = 4。'}
   }},
-  {id:'l07',title:'文字列の基本操作',icon:'🔤',desc:'文字列の操作・比較・変換',xp:75,time:'25分',content:{
+  {id:'l07',title:'文字列処理',icon:'🔤',desc:'文字列の読み取り・操作・変換',xp:75,time:'25分',content:{
     sections:[
-      {t:'文字列の入出力',code:'char s[105];\nscanf("%s",s); /* &は不要！ */\nint len=strlen(s);\nprintf("長さ: %d\\n",len);',lang:'c'},
-      {t:'文字の比較と変換',b:'文字は内部でASCIIコード（整数）として扱われる。',code:"char c='A';\nprintf(\"%d\\n\",c);       /* 65 */\nchar d='7';\nint num=d-'0';           /* 7  数字文字→整数 */",lang:'c'},
-      {t:'数値→文字列（ラッキーナンバー問題より）',code:'char buf[30];\nint n=12345;\nsprintf(buf,"%d",n);\nfor(int i=0;buf[i];i++)\n    if(buf[i]==\'9\') cnt++;',lang:'c'}
+      {concept:'C言語の文字列は `char` の配列。各文字は **ASCIIコード（整数）**。\n`\'0\'`=48、`\'9\'`=57、`\'A\'`=65 ── 差を使った変換が頻出！'},
+      {t:'① 文字列の入出力',code:'char s[105];\nscanf("%s", s);        /* & は不要 */\nint len = strlen(s);   /* 長さ */\nprintf("%s len=%d\\n", s, len);\n',lang:'c',title:'文字列読み込み'},
+      {t:'② 文字 ↔ 整数 変換（超頻出）',steps:["数字文字→整数: `int n = c - '0';`（`'7'-'0'=7`）","整数→文字列: `sprintf(buf, \"%d\", n);`"],
+       code:'/* 2024年Q3 ラッキーナンバー */\nchar buf[20];\nint d, n; scanf("%d %d", &d, &n);\nsprintf(buf, "%d", n);  /* 整数→文字列 */\nint cnt = 0;\nfor(int i = 0; buf[i]; i++)\n    if(buf[i] - \'0\' == d) cnt++;\nprintf("%d\\n", cnt);\n',lang:'c',title:'ラッキーナンバー（2024年Q3）'},
+      {t:'③ よく使う文字列関数',table:{h:['関数','働き'],rows:[['`strlen(s)`','文字列の長さ'],['`strcmp(a,b)`','比較（0=等しい）'],['`sprintf(buf,fmt,...)`','整数→文字列へ変換'],['`s[i]`','i番目の文字にアクセス']]}},
     ],
-    quiz:{q:"文字 '5' をint の 5 に変換するには？",opts:["int('5')","'5'-'0'","'5'-5","atoi('5')"],ans:1,exp:"'5'-'0'=53-48=5。ASCII文字の数字はこう変換する。"}
+    quiz:{q:"'5' を int の 5 に変換するには？",opts:["int('5')","'5' - '0'","atoi('5')","'5' - 5"],ans:1,exp:"'5'のASCIIは53、'0'は48。53-48=5。最速・最頻出の変換。"}
   }},
-  {id:'l08',title:'デバッグ・よくある罠',icon:'🐛',desc:'バグを見つけて直す力',xp:60,time:'20分',content:{
+  {id:'l08',title:'デバッグ・よくある罠',icon:'🐛',desc:'バグを先読みして防ぐ思考法',xp:60,time:'20分',content:{
     sections:[
-      {t:'① 整数オーバーフロー',code:'/* NG: int同士の掛け算がオーバーフロー */\nint a=100000, b=100000;\nprintf("%d\\n",a*b);  /* 負の数になる！ */\n/* OK: long longにキャスト */\nlong long ok=(long long)a*b;\nprintf("%lld\\n",ok);',lang:'c'},
-      {t:'② 配列の範囲外アクセス',code:'int a[5];\na[5]=10;  /* NG！有効はa[0]〜a[4] */\n/* 宣言サイズを十分に大きく取ること */\nint b[100005]; /* N≤10^5なら余裕を持って */\n',lang:'c'},
-      {t:'③ 整数除算と切り上げ',code:'printf("%d\\n", 7/2);    /* 3（切り捨て） */\nprintf("%f\\n", 7.0/2);  /* 3.5（OK） */\n/* 切り上げ除算: (a+b-1)/b */\nint need=(250+50-1)/50; /* =5（切り上げ） */',lang:'c'}
+      {concept:'よくあるバグのパターンを**先に知っておく**だけで正答率が劇的に上がる。提出前の3秒チェックで悔しい WA を防ごう。'},
+      {t:'罠① 整数オーバーフロー',danger:'`int × int` の結果が21億を超えるとバグる。掛け算の前に型を確認！',
+       codes:[{title:'❌ NG',code:'printf("%d\\n", 100000 * 100000); /* 変な値 */',lang:'c'},{title:'✅ OK',code:'printf("%lld\\n", (long long)100000 * 100000);',lang:'c'}]},
+      {t:'罠② 配列の範囲外',danger:'`int a[5]` で `a[5]` にアクセスするとメモリ破壊。`i <= n` を `i < n` に修正。',
+       code:'for(int i = 0; i < n; i++) a[i] = 0; /* OK */\n/* NG: i <= n はa[n]にアクセスしてしまう */',lang:'c',title:'正しいループ終了条件'},
+      {t:'罠③ scanf/printf のフォーマット',table:{h:['型','scanf','printf'],rows:[['`int`','`%d, &x`','`%d`'],['`long long`','`%lld, &x`','`%lld`'],['`double`','`%lf, &x`','`%f`'],['`char[]`','`%s, s`（& 不要）','`%s`']]}},
+      {warn:'提出前チェック: ① long long 必要か？ ② 配列サイズは十分か？ ③ 改行 `\\n` を忘れていないか？'},
     ],
-    quiz:{q:'int a=100000; int b=100000; a*b の結果は？',opts:['10000000000','1410065408（オーバーフロー）','0','100000'],ans:1,exp:'intは約21億まで。100000×100000=10^10はオーバーフロー。long longを使おう！'}
+    quiz:{q:'long long x; を scanf で読む正しい書き方は？',opts:['scanf("%d", &x)','scanf("%lld", &x)','scanf("%ld", &x)','scanf("%ll", &x)'],ans:1,exp:'long long は %lld。%d は int 専用。間違えると読み込み値が壊れる。'}
   }}
 ]},
 {level:2,title:'青帯修行',sub:'ソート・探索・貪欲法・グラフ基礎',icon:'⚔️',cls:'l2',lessons:[
@@ -1292,44 +1392,76 @@ function renderAchievements(){
 }
 
 // ═══════════════════════════════════════════════════════════
-// LESSON MODAL
+// LESSON MODAL  ── rich renderer
 // ═══════════════════════════════════════════════════════════
+/* Section element builders */
+function lEl(sec){
+  let html='';
+  // heading
+  if(sec.t) html+=`<div class="l-sec-h">${sec.t}</div>`;
+  // body text (supports **bold**)
+  if(sec.b) html+=`<p>${sec.b.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')}</p>`;
+  // concept callout
+  if(sec.concept) html+=`<div class="l-concept">${sec.concept.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')}</div>`;
+  // warning callout
+  if(sec.warn) html+=`<div class="l-warn">${sec.warn.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')}</div>`;
+  // danger callout
+  if(sec.danger) html+=`<div class="l-danger">${sec.danger.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')}</div>`;
+  // step list
+  if(sec.steps) html+=`<div class="l-steps">${sec.steps.map((s,i)=>`<div class="l-step"><div class="l-step-n">${i+1}</div><div class="l-step-t">${s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`(.+?)`/g,'<code>$1</code>')}</div></div>`).join('')}</div>`;
+  // comparison table  [{h:['A','B'], rows:[['a','b'],...]}]
+  if(sec.table){
+    html+=`<table class="l-table"><thead><tr>${sec.table.h.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>`;
+    html+=sec.table.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('');
+    html+=`</tbody></table>`;
+  }
+  // code block
+  if(sec.code) html+=`<div class="code-block">${sec.title?`<div class="code-block-title">${sec.title}</div>`:''}<pre>${colorize(sec.code,sec.lang||'c')}</pre></div>`;
+  // multiple code blocks
+  if(sec.codes) html+=sec.codes.map(c=>`<div class="code-block"><div class="code-block-title">${c.title||''}</div><pre>${colorize(c.code,c.lang||'c')}</pre></div>`).join('');
+  return html;
+}
+
 function openLesson(id){
   const lesson=CURRICULUM.flatMap(l=>l.lessons).find(l=>l.id===id);if(!lesson)return;
   const c=lesson.content;
-  document.getElementById('lessonModalBody').innerHTML=`<div class="lcon">
+  const body=document.getElementById('lessonModalBody');
+  body.innerHTML=`<div class="lcon">
     <span class="ltag">📚 レッスン</span>
     <h2>${lesson.icon} ${lesson.title}</h2>
-    <div style="color:var(--text3);font-size:12px;margin-bottom:18px">⏱ ${lesson.time} | +${lesson.xp} XP</div>
-    ${c.sections.map(sec=>`
-      <h3>${sec.t}</h3>
-      ${sec.b?`<p>${sec.b.replace(/\n/g,'<br>')}</p>`:''}
-      ${sec.code?`<div class="code-block"><pre>${colorize(sec.code,sec.lang||'c')}</pre></div>`:''}
-    `).join('')}
+    <div style="color:var(--text3);font-size:12px;margin-bottom:18px">⏱ ${lesson.time} ｜ +${lesson.xp} XP</div>
+    ${c.sections.map(lEl).join('')}
     ${c.quiz?`<div class="quiz-wrap">
-      <div class="quiz-q">❓ 理解チェック: ${c.quiz.q}</div>
+      <div class="quiz-label">✅ 理解チェック</div>
+      <div class="quiz-q">${c.quiz.q}</div>
       <div class="quiz-opts">${c.quiz.opts.map((opt,i)=>
-        `<button class="qopt" onclick="answerQ(this,${i},${c.quiz.ans},'${id}',${lesson.xp})">${String.fromCharCode(65+i)}. ${opt}</button>`
+        `<button class="qopt" onclick="answerQ(this,${i},${c.quiz.ans},'${id}',${lesson.xp})">
+          <span class="qopt-key">${String.fromCharCode(65+i)}</span>${opt}
+        </button>`
       ).join('')}</div>
-      <div id="qfb_${id}" style="margin-top:10px;font-size:12px;display:none"></div>
+      <div class="quiz-fb" id="qfb_${id}"></div>
     </div>`:
     `<div class="lesson-nav"><button class="btn" onclick="finishLesson('${id}',${lesson.xp})">完了 ✓</button></div>`}
   </div>`;
   document.getElementById('lessonModal').classList.remove('hidden');
+  body.scrollTop=0;
 }
 
 function answerQ(btn,sel,ans,lid,xp){
-  const opts=btn.parentElement.querySelectorAll('.qopt');
+  const opts=btn.closest('.quiz-opts').querySelectorAll('.qopt');
   opts.forEach((o,i)=>{o.disabled=true;if(i===ans)o.classList.add('correct');else if(i===sel&&sel!==ans)o.classList.add('wrong');});
   const fb=document.getElementById('qfb_'+lid);
   const lesson=CURRICULUM.flatMap(l=>l.lessons).find(l=>l.id===lid);
+  const exp=lesson?.content?.quiz?.exp||'';
   if(fb){
-    fb.style.display='block';
     if(sel===ans){
-      fb.innerHTML=`<span style="color:var(--green)">✅ 正解！${lesson?.content?.quiz?.exp||''}</span>`;
-      setTimeout(()=>finishLesson(lid,xp),1000);
+      fb.className='quiz-fb ok';fb.style.display='block';
+      fb.innerHTML=`✅ 正解！${exp}`;
+      setTimeout(()=>finishLesson(lid,xp),1200);
     } else {
-      fb.innerHTML=`<span style="color:#ff6060">❌ 不正解。正解は「${opts[ans].textContent.trim()}」<br>${lesson?.content?.quiz?.exp||''}</span>`;
+      fb.className='quiz-fb ng';fb.style.display='block';
+      const correct=opts[ans].querySelector('.qopt-key').nextSibling?.textContent?.trim()||opts[ans].textContent.trim();
+      fb.innerHTML=`❌ 不正解。正解は「${String.fromCharCode(65+ans)}」です。<br>${exp}`;
     }
   }
 }
